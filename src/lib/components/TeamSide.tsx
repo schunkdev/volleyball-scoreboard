@@ -40,6 +40,7 @@ export const TeamSide = ({
   const longPressTriggeredRef = useRef(false);
   const startYRef = useRef<number | null>(null);
   const hasMovedRef = useRef<boolean>(false);
+  const ignoreMouseUntilRef = useRef<number>(0);
 
   const startHold = (delta: number) => {
     if (holdTimerRef.current) clearInterval(holdTimerRef.current);
@@ -80,6 +81,12 @@ export const TeamSide = ({
 
   // --- Score Swipe/Tap/Hold Handlers ---
   const handleScoreStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if ("touches" in e) {
+      ignoreMouseUntilRef.current = Date.now() + 800;
+    } else if (Date.now() < ignoreMouseUntilRef.current) {
+      return;
+    }
+
     const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
     startYRef.current = y;
     hasMovedRef.current = false;
@@ -92,6 +99,10 @@ export const TeamSide = ({
   };
 
   const handleScoreEnd = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!('changedTouches' in e) && Date.now() < ignoreMouseUntilRef.current) {
+      return;
+    }
+
     if (swipeLongPressTimerRef.current) clearTimeout(swipeLongPressTimerRef.current);
     
     if (startYRef.current !== null) {
@@ -113,6 +124,10 @@ export const TeamSide = ({
   };
 
   const handleScoreMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!('touches' in e) && Date.now() < ignoreMouseUntilRef.current) {
+      return;
+    }
+
     if (startYRef.current === null) return;
     
     const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -196,19 +211,19 @@ export const TeamSide = ({
       {/* Score Area - Main Interaction */}
       <div className={cn(
         "flex flex-col items-center justify-center pointer-events-auto w-full h-full",
-        compactLayout ? "pt-8 pb-2" : "pt-20",
+        compactLayout ? "pt-8 pb-2" : "pt-[clamp(11rem,24vh,15rem)] pb-6",
       )}>
         {/* Plus Zone */}
         {!compactLayout && (
           <button 
             onClick={() => onScoreChange(1)}
             className={cn(
-              "z-30 p-8 transition-all active:scale-90 hover:opacity-100 opacity-20",
+              "z-30 p-4 mt-2 transition-all active:scale-90 hover:opacity-100 opacity-20 shrink-0",
               color === 'primary' ? "text-primary" : "text-secondary"
             )}
           >
             <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-              <Plus size={64} strokeWidth={3} />
+              <Plus size={44} strokeWidth={3} />
             </motion.div>
           </button>
         )}
@@ -230,7 +245,7 @@ export const TeamSide = ({
           >
             <span className={cn(
               "font-headline font-black leading-none tracking-tighter transition-all duration-300",
-              compactLayout ? "text-[10rem]" : "text-[28rem]",
+              compactLayout ? "text-[10rem]" : "text-[clamp(12rem,42vh,24rem)]",
               color === 'primary' ? "text-primary score-glow-primary" : "text-secondary score-glow-secondary"
             )}>
               {score}
@@ -243,12 +258,12 @@ export const TeamSide = ({
           <button 
             onClick={() => onScoreChange(-1)}
             className={cn(
-              "z-30 p-8 transition-all active:scale-90 hover:opacity-100 opacity-20",
+              "z-30 p-4 transition-all active:scale-90 hover:opacity-100 opacity-20",
               color === 'primary' ? "text-primary" : "text-secondary"
             )}
           >
             <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-              <Minus size={64} strokeWidth={3} />
+              <Minus size={44} strokeWidth={3} />
             </motion.div>
           </button>
         )}

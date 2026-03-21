@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { themes } from "@/lib/themes";
 import {
   type CompletedSet,
@@ -61,9 +61,10 @@ export function useScoreboardController() {
     return () => mediaQuery.removeEventListener("change", update);
   }, []);
 
-  const supportsFullscreen =
-    typeof document !== "undefined" &&
-    (() => {
+  const supportsFullscreen = useSyncExternalStore(
+    () => () => {},
+    () => {
+      if (typeof document === "undefined") return false;
       const el = document.documentElement as HTMLElement & {
         webkitRequestFullscreen?: () => Promise<void> | void;
       };
@@ -71,7 +72,9 @@ export function useScoreboardController() {
         typeof el.requestFullscreen === "function" ||
         typeof el.webkitRequestFullscreen === "function"
       );
-    })();
+    },
+    () => false,
+  );
 
   const currentSet = setsWonA + setsWonB + 1;
 
