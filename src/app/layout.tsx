@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Lexend } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -22,7 +23,9 @@ export const metadata: Metadata = {
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
@@ -41,6 +44,7 @@ export default function RootLayout({
         className="bg-[#0c0e12] text-[#f6f6fc] overflow-hidden"
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
