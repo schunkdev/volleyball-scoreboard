@@ -39,8 +39,8 @@ export default function VolleyballScoreboard() {
   const [scoreB, setScoreB] = useState(0);
   const [setsWonA, setSetsWonA] = useState(0);
   const [setsWonB, setSetsWonB] = useState(0);
-  const [nameA, setNameA] = useState("Titans");
-  const [nameB, setNameB] = useState("Raptors");
+  const [nameA, setNameA] = useState("Team A");
+  const [nameB, setNameB] = useState("Team B");
   const [scoreDialogOpen, setScoreDialogOpen] = useState<"A" | "B" | null>(
     null,
   );
@@ -145,8 +145,7 @@ export default function VolleyballScoreboard() {
   const handleSetWinIncrement = (team: "A" | "B") => {
     pushToHistory();
     const max = unlimitedSets ? 99 : 3;
-    if (team === "A")
-      setSetsWonA((prev: number) => Math.min(max, prev + 1));
+    if (team === "A") setSetsWonA((prev: number) => Math.min(max, prev + 1));
     else setSetsWonB((prev: number) => Math.min(max, prev + 1));
   };
 
