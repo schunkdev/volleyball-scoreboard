@@ -17,6 +17,7 @@ import {
 
 // Components
 import { OrientationGuard } from "@/lib/components/OrientationGuard";
+import { QuickGuide } from "@/lib/components/QuickGuide";
 import { ScoreDialog } from "@/lib/components/ScoreDialog";
 import { EditTeamDialog } from "@/lib/components/EditTeamDialog";
 import { SettingsDialog } from "@/lib/components/SettingsDialog";
@@ -151,6 +152,7 @@ export default function VolleyballScoreboard() {
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-bg font-body transition-colors duration-700">
+      <QuickGuide />
       <OrientationGuard />
 
       {/* Header */}

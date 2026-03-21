@@ -22,6 +22,10 @@ export const SettingsDialog = ({
   const [unlimitedSets, setUnlimitedSets] = useState(config.unlimitedSets);
   const [theme, setTheme] = useState(config.theme);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const handleShowGuideAgain = () => {
+    window.dispatchEvent(new Event('vb-scoreboard-show-quickguide'));
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -113,6 +117,16 @@ export const SettingsDialog = ({
               )}
             </AnimatePresence>
           </div>
+        </div>
+
+        <div className="w-full mb-5">
+          <button
+            type="button"
+            onClick={handleShowGuideAgain}
+            className="text-xs uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary underline underline-offset-4 transition-colors"
+          >
+            Show quick guide again
+          </button>
         </div>
 
         <div className="flex gap-4 w-full">
