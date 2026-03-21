@@ -212,10 +212,13 @@ export default function VolleyballScoreboard() {
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto">
           <div className="flex items-center gap-4 bg-surface-container/40 backdrop-blur-md px-8 py-2 rounded-full border border-white/5">
             <div className="flex flex-col items-center min-w-[60px]">
-              <span className="font-headline font-black text-xl text-[#ff7346]">
+              <span className="font-headline font-black text-xl text-primary">
                 {!unlimitedSets && (setsWonA === 3 || setsWonB === 3)
                   ? "FINAL"
                   : currentSet}
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary/90">
+                {setsWonA}-{setsWonB}
               </span>
             </div>
           </div>
