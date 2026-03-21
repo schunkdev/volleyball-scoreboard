@@ -55,7 +55,7 @@ export default function VolleyballScoreboard() {
   const [themeId, setThemeId] = useState("stadium-dark");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("vt-theme");
+    const savedTheme = localStorage.getItem("vb-scoreboard-theme");
     if (savedTheme) {
       // Hydrate from localStorage after mount so SSR and first client paint match.
       queueMicrotask(() => setThemeId(savedTheme));
@@ -70,7 +70,7 @@ export default function VolleyballScoreboard() {
       const cssVarName = `--theme-${key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}`;
       root.style.setProperty(cssVarName, value);
     });
-    localStorage.setItem("vt-theme", themeId);
+    localStorage.setItem("vb-scoreboard-theme", themeId);
   }, [themeId]);
 
   useEffect(() => {
