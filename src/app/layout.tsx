@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Lexend } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -41,6 +42,7 @@ export default function RootLayout({
         className="bg-[#0c0e12] text-[#f6f6fc] overflow-hidden"
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
