@@ -7,6 +7,7 @@ import {
   Maximize2,
   Minimize2,
   RefreshCw,
+  ArrowLeftRight,
   Layers,
   Trophy,
   BarChart2,
@@ -33,6 +34,13 @@ type HistoryEntry = {
   scoreB: number;
   setsWonA: number;
   setsWonB: number;
+  isSwapped: boolean;
+  completedSets: CompletedSet[];
+};
+
+type CompletedSet = {
+  a: number;
+  b: number;
 };
 
 export default function VolleyballScoreboard() {
@@ -49,6 +57,8 @@ export default function VolleyballScoreboard() {
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [isSwapped, setIsSwapped] = useState(false);
+  const [completedSets, setCompletedSets] = useState<CompletedSet[]>([]);
 
   // Settings state
   const [gameMode, setGameMode] = useState(true);
@@ -102,7 +112,17 @@ export default function VolleyballScoreboard() {
 
   const pushToHistory = () => {
     setHistory((prev: HistoryEntry[]) =>
-      [...prev, { scoreA, scoreB, setsWonA, setsWonB }].slice(-50),
+      [
+        ...prev,
+        {
+          scoreA,
+          scoreB,
+          setsWonA,
+          setsWonB,
+          isSwapped,
+          completedSets: [...completedSets],
+        },
+      ].slice(-50),
     );
   };
 
@@ -113,6 +133,8 @@ export default function VolleyballScoreboard() {
     setScoreB(lastState.scoreB);
     setSetsWonA(lastState.setsWonA);
     setSetsWonB(lastState.setsWonB);
+    setIsSwapped(lastState.isSwapped);
+    setCompletedSets(lastState.completedSets);
     setHistory((prev: HistoryEntry[]) => prev.slice(0, -1));
   };
 
@@ -121,6 +143,7 @@ export default function VolleyballScoreboard() {
     pushToHistory();
     if (team === "A") {
       if (gameMode && score >= 25 && score - scoreB >= 2) {
+        setCompletedSets((prev) => [...prev, { a: score, b: scoreB }]);
         setSetsWonA((prev: number) => prev + 1);
         setScoreA(0);
         setScoreB(0);
@@ -129,6 +152,7 @@ export default function VolleyballScoreboard() {
       }
     } else {
       if (gameMode && score >= 25 && score - scoreA >= 2) {
+        setCompletedSets((prev) => [...prev, { a: scoreA, b: score }]);
         setSetsWonB((prev: number) => prev + 1);
         setScoreA(0);
         setScoreB(0);
@@ -149,6 +173,32 @@ export default function VolleyballScoreboard() {
     if (team === "A") setSetsWonA((prev: number) => Math.min(max, prev + 1));
     else setSetsWonB((prev: number) => Math.min(max, prev + 1));
   };
+
+  const handleSwitchSides = () => {
+    pushToHistory();
+    setIsSwapped((prev) => !prev);
+  };
+
+  const teamA = {
+    id: "A" as const,
+    name: nameA,
+    score: scoreA,
+    setsWon: setsWonA,
+    label: "Home Team",
+    color: "primary" as const,
+  };
+
+  const teamB = {
+    id: "B" as const,
+    name: nameB,
+    score: scoreB,
+    setsWon: setsWonB,
+    label: "Visitor",
+    color: "secondary" as const,
+  };
+
+  const leftTeam = isSwapped ? teamB : teamA;
+  const rightTeam = isSwapped ? teamA : teamB;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-bg font-body transition-colors duration-700">
@@ -189,27 +239,29 @@ export default function VolleyballScoreboard() {
       {/* Main Score Area */}
       <div className="flex h-full w-full">
         <TeamSide
-          name={nameA}
-          score={scoreA}
-          setsWon={setsWonA}
-          label="Home Team"
-          color="primary"
-          onScoreChange={(d) => handleScoreChange("A", d)}
-          onScoreDialogRequest={() => setScoreDialogOpen("A")}
-          onNameLongPress={() => setNameDialogOpen("A")}
-          onSetWinIncrement={() => handleSetWinIncrement("A")}
+          name={leftTeam.name}
+          score={leftTeam.score}
+          setsWon={leftTeam.setsWon}
+          label={leftTeam.label}
+          side="left"
+          color={leftTeam.color}
+          onScoreChange={(d) => handleScoreChange(leftTeam.id, d)}
+          onScoreDialogRequest={() => setScoreDialogOpen(leftTeam.id)}
+          onNameLongPress={() => setNameDialogOpen(leftTeam.id)}
+          onSetWinIncrement={() => handleSetWinIncrement(leftTeam.id)}
           unlimitedSets={unlimitedSets}
         />
         <TeamSide
-          name={nameB}
-          score={scoreB}
-          setsWon={setsWonB}
-          label="Visitor"
-          color="secondary"
-          onScoreChange={(d) => handleScoreChange("B", d)}
-          onScoreDialogRequest={() => setScoreDialogOpen("B")}
-          onNameLongPress={() => setNameDialogOpen("B")}
-          onSetWinIncrement={() => handleSetWinIncrement("B")}
+          name={rightTeam.name}
+          score={rightTeam.score}
+          setsWon={rightTeam.setsWon}
+          label={rightTeam.label}
+          side="right"
+          color={rightTeam.color}
+          onScoreChange={(d) => handleScoreChange(rightTeam.id, d)}
+          onScoreDialogRequest={() => setScoreDialogOpen(rightTeam.id)}
+          onNameLongPress={() => setNameDialogOpen(rightTeam.id)}
+          onSetWinIncrement={() => handleSetWinIncrement(rightTeam.id)}
           unlimitedSets={unlimitedSets}
         />
       </div>
@@ -229,12 +281,23 @@ export default function VolleyballScoreboard() {
               setScoreB(0);
               setSetsWonA(0);
               setSetsWonB(0);
+              setIsSwapped(false);
+              setCompletedSets([]);
             }}
             className="flex items-center gap-2 px-5 py-2.5 glass-panel rounded-full border border-white/5 hover:bg-white/10 transition-all active:scale-95"
           >
             <RefreshCw size={14} className="text-primary" />
             <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
               Reset
+            </span>
+          </button>
+          <button
+            onClick={handleSwitchSides}
+            className="flex items-center gap-2 px-5 py-2.5 glass-panel rounded-full border border-white/5 hover:bg-white/10 transition-all active:scale-95"
+          >
+            <ArrowLeftRight size={14} className="text-primary" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+              Switch Sides
             </span>
           </button>
           <button className="flex items-center gap-2 px-5 py-2.5 glass-panel rounded-full border border-white/5 hover:bg-white/10 transition-all active:scale-95">
@@ -246,6 +309,23 @@ export default function VolleyballScoreboard() {
             </span>
           </button>
         </div>
+
+        {gameMode && completedSets.length > 0 && (
+          <div className="mb-4 flex max-w-[90vw] gap-2 overflow-x-auto pointer-events-auto px-2">
+            {completedSets.map((set, index) => {
+              const leftScore = isSwapped ? set.b : set.a;
+              const rightScore = isSwapped ? set.a : set.b;
+              return (
+                <div
+                  key={`${index}-${set.a}-${set.b}`}
+                  className="shrink-0 rounded-full border border-white/10 bg-surface-container/40 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface"
+                >
+                  S{index + 1} {leftScore}-{rightScore}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Main Navigation */}
         <nav className="glass-panel px-4 py-2 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-2 pointer-events-auto">

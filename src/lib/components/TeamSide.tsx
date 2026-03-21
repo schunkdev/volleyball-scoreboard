@@ -10,6 +10,7 @@ export const TeamSide = ({
   score, 
   setsWon,
   label, 
+  side,
   color, 
   onScoreChange,
   onScoreDialogRequest,
@@ -21,6 +22,7 @@ export const TeamSide = ({
   score: number; 
   setsWon: number;
   label: string; 
+  side: 'left' | 'right';
   color: 'primary' | 'secondary';
   onScoreChange: (delta: number) => void;
   onScoreDialogRequest: () => void;
@@ -236,7 +238,10 @@ export const TeamSide = ({
       {/* Side Accent */}
       <div className={cn(
         "absolute top-1/4 bottom-1/4 w-1.5 rounded-full blur-[1px]",
-        color === 'primary' ? "left-0 bg-primary shadow-[0_0_20px_var(--theme-primary-muted)]" : "right-0 bg-secondary shadow-[0_0_20px_var(--theme-secondary-muted)]"
+        side === 'left' ? "left-0" : "right-0",
+        color === 'primary'
+          ? "bg-primary shadow-[0_0_20px_var(--theme-primary-muted)]"
+          : "bg-secondary shadow-[0_0_20px_var(--theme-secondary-muted)]"
       )} />
     </div>
   );
