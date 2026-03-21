@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  /* Default Theme Variables (Stadium Dark) */
+  --theme-bg: #0c0e12;
+  --theme-bg-secondary: #111318;
+  --theme-primary: #81e9ff;
+  --theme-primary-muted: rgba(129, 233, 255, 0.2);
+  --theme-primary-contrast: #005561;
+  --theme-secondary: #ff7346;
+  --theme-secondary-muted: rgba(255, 115, 70, 0.2);
+  --theme-secondary-contrast: #420d00;
+  --theme-surface: #1a1c22;
+  --theme-surface-variant: #2a2d35;
+  --theme-on-surface: #ffffff;
+  --theme-on-surface-variant: rgba(255, 255, 255, 0.4);
+}
+
+@theme {
+  --font-headline: var(--font-space-grotesk);
+  --font-body: var(--font-lexend);
+  --font-display: var(--font-space-grotesk);
+  
+  /* Theme Colors */
+  --color-bg: var(--theme-bg);
+  --color-bg-secondary: var(--theme-bg-secondary);
+  --color-primary: var(--theme-primary);
+  --color-primary-muted: var(--theme-primary-muted);
+  --color-primary-contrast: var(--theme-primary-contrast);
+  --color-secondary: var(--theme-secondary);
+  --color-secondary-muted: var(--theme-secondary-muted);
+  --color-secondary-contrast: var(--theme-secondary-contrast);
+  --color-surface: var(--theme-surface);
+  --color-surface-variant: var(--theme-surface-variant);
+  --color-on-surface: var(--theme-on-surface);
+  --color-on-surface-variant: var(--theme-on-surface-variant);
+}
+
+@layer utilities {
+  .score-glow-primary {
+    text-shadow: 0 0 40px var(--theme-primary-muted);
+  }
+  .score-glow-secondary {
+    text-shadow: 0 0 40px var(--theme-secondary-muted);
+  }
+  .glass-panel {
+    backdrop-filter: blur(24px);
+    background: var(--theme-surface-variant);
+    opacity: 0.8;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+}
+
+body {
+  font-family: var(--font-lexend), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
