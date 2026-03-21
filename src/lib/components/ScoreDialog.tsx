@@ -65,21 +65,21 @@ export const ScoreDialog = ({
   if (!isOpen) return null;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/40 backdrop-blur-sm"
+      className="absolute inset-0 z-50 flex items-center justify-center p-3 md:p-6 pointer-events-auto bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="glass-panel p-8 rounded-3xl border border-white/10 shadow-2xl min-w-[280px]"
+        className="glass-panel w-full max-w-[420px] max-h-[calc(100dvh-max(env(safe-area-inset-top),0.75rem)-max(env(safe-area-inset-bottom),0.75rem)-1.5rem)] overflow-y-auto p-5 md:p-8 rounded-3xl border border-white/10 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-5 md:mb-8">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Set Score</span>
             <span className="text-[8px] uppercase tracking-widest text-white/20 mt-1">Keyboard Input Enabled</span>
@@ -89,20 +89,20 @@ export const ScoreDialog = ({
           </button>
         </div>
         
-        <div className="flex items-center justify-center gap-8 mb-10">
+        <div className="flex items-center justify-center gap-3 md:gap-8 mb-6 md:mb-10">
           <button 
             onClick={() => {
               setVal(Math.max(0, val - 1));
               setHasStartedTyping(true);
             }}
-            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-surface-variant hover:bg-white/10 transition-all active:scale-90"
+            className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl bg-surface-variant hover:bg-white/10 transition-all active:scale-90"
           >
-            <Minus size={28} className={color === 'primary' ? 'text-primary' : 'text-secondary'} />
+            <Minus size={24} className={color === 'primary' ? 'text-primary' : 'text-secondary'} />
           </button>
           
           <div className="relative flex flex-col items-center">
             <span className={cn(
-              "text-8xl font-headline font-black min-w-[120px] text-center transition-all duration-300",
+              "text-6xl md:text-8xl font-headline font-black min-w-[84px] md:min-w-[120px] text-center transition-all duration-300",
               hasStartedTyping ? "text-on-surface" : "text-on-surface-variant"
             )}>
               {val}
@@ -119,9 +119,9 @@ export const ScoreDialog = ({
               setVal(val + 1);
               setHasStartedTyping(true);
             }}
-            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-surface-variant hover:bg-white/10 transition-all active:scale-90"
+            className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl bg-surface-variant hover:bg-white/10 transition-all active:scale-90"
           >
-            <Plus size={28} className={color === 'primary' ? 'text-primary' : 'text-secondary'} />
+            <Plus size={24} className={color === 'primary' ? 'text-primary' : 'text-secondary'} />
           </button>
         </div>
 
@@ -131,7 +131,7 @@ export const ScoreDialog = ({
             onClose();
           }}
           className={cn(
-            "w-full py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 shadow-lg",
+            "w-full py-3.5 md:py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 shadow-lg",
             color === 'primary' 
               ? "bg-primary text-primary-contrast shadow-[0_0_20px_var(--theme-primary-muted)]" 
               : "bg-secondary text-secondary-contrast shadow-[0_0_20px_var(--theme-secondary-muted)]"

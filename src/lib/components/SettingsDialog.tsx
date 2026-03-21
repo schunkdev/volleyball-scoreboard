@@ -32,24 +32,24 @@ export const SettingsDialog = ({
   const currentTheme = themes.find(t => t.id === theme) || themes[0];
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 z-[100] flex items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-md"
+      className="absolute inset-0 z-[100] flex items-center justify-center p-3 md:p-6 pointer-events-auto bg-black/60 backdrop-blur-md"
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-surface p-10 rounded-[40px] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] min-w-[440px] flex flex-col items-center"
+        className="bg-surface w-full max-w-[520px] max-h-[calc(100dvh-max(env(safe-area-inset-top),0.75rem)-max(env(safe-area-inset-bottom),0.75rem)-1.5rem)] overflow-y-auto p-5 md:p-10 rounded-3xl md:rounded-[40px] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-5xl font-headline font-black italic tracking-tighter uppercase mb-2 text-on-surface">Settings</h2>
-        <div className="w-12 h-1.5 bg-primary rounded-full mb-10 shadow-[0_0_15px_var(--theme-primary)]" />
+        <h2 className="text-3xl md:text-5xl font-headline font-black italic tracking-tighter uppercase mb-2 text-on-surface">Settings</h2>
+        <div className="w-12 h-1.5 bg-primary rounded-full mb-5 md:mb-10 shadow-[0_0_15px_var(--theme-primary)]" />
 
-        <div className="w-full space-y-4 mb-10">
+        <div className="w-full space-y-4 mb-6 md:mb-10">
           <Toggle 
             active={gameMode} 
             onToggle={() => setGameMode(!gameMode)} 
@@ -119,7 +119,7 @@ export const SettingsDialog = ({
           </div>
         </div>
 
-        <div className="w-full mb-5">
+        <div className="w-full mb-4 md:mb-5">
           <button
             type="button"
             onClick={handleShowGuideAgain}
@@ -129,10 +129,10 @@ export const SettingsDialog = ({
           </button>
         </div>
 
-        <div className="flex gap-4 w-full">
+        <div className="flex gap-3 md:gap-4 w-full">
           <button 
             onClick={onClose}
-            className="flex-1 py-5 rounded-2xl bg-white/5 hover:bg-white/10 font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 text-on-surface"
+            className="flex-1 py-3.5 md:py-5 rounded-2xl bg-white/5 hover:bg-white/10 font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 text-on-surface"
           >
             Cancel
           </button>
@@ -141,7 +141,7 @@ export const SettingsDialog = ({
               onSave({ gameMode, unlimitedSets, theme });
               onClose();
             }}
-            className="flex-1 py-5 rounded-2xl bg-primary text-primary-contrast font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 shadow-[0_0_30px_var(--theme-primary-muted)]"
+            className="flex-1 py-3.5 md:py-5 rounded-2xl bg-primary text-primary-contrast font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 shadow-[0_0_30px_var(--theme-primary-muted)]"
           >
             Save Config
           </button>

@@ -16,7 +16,8 @@ export const TeamSide = ({
   onScoreDialogRequest,
   onNameLongPress,
   onSetWinIncrement,
-  unlimitedSets = false
+  unlimitedSets = false,
+  compactLayout = false,
 }: { 
   name: string; 
   score: number; 
@@ -29,6 +30,7 @@ export const TeamSide = ({
   onNameLongPress: () => void;
   onSetWinIncrement: () => void;
   unlimitedSets?: boolean;
+  compactLayout?: boolean;
 }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [lastDelta, setLastDelta] = useState(0);
@@ -147,8 +149,11 @@ export const TeamSide = ({
       )} />
 
       {/* Team Info Area - Separate Hitbox for Name Long Press */}
-      <div 
-        className="absolute top-20 flex flex-col items-center z-20 pointer-events-auto cursor-pointer group/name"
+      <div
+        className={cn(
+          "absolute flex flex-col items-center z-20 pointer-events-auto cursor-pointer group/name",
+          compactLayout ? "top-3" : "top-20",
+        )}
         onMouseDown={handleNameStart}
         onMouseUp={handleNameEnd}
         onMouseLeave={handleNameEnd}
@@ -157,13 +162,19 @@ export const TeamSide = ({
         onClick={handleNameClick}
       >
         <span className={cn(
-          "font-body text-[10px] tracking-[0.3em] uppercase mb-2 font-bold",
+          "font-body tracking-[0.3em] uppercase font-bold",
+          compactLayout ? "text-[8px] mb-1.5" : "text-[10px] mb-2",
           color === 'primary' ? "text-primary" : "text-secondary"
         )}>
           {label}
         </span>
-        <h2 className="font-headline text-4xl font-black tracking-tight uppercase transition-transform group-active/name:scale-95 text-on-surface">{name}</h2>
-        <div className="mt-4 flex gap-3">
+        <h2 className={cn(
+          "font-headline font-black tracking-tight uppercase transition-transform group-active/name:scale-95 text-on-surface",
+          compactLayout ? "text-xl max-w-[42vw] truncate" : "text-4xl",
+        )}>
+          {name}
+        </h2>
+        <div className={cn("flex gap-3", compactLayout ? "mt-2" : "mt-4")}>
           {unlimitedSets ? (
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
               <InfinityIcon size={12} className={color === 'primary' ? "text-primary" : "text-secondary"} />
@@ -183,19 +194,24 @@ export const TeamSide = ({
       </div>
 
       {/* Score Area - Main Interaction */}
-      <div className="flex flex-col items-center justify-center pointer-events-auto w-full h-full pt-20">
+      <div className={cn(
+        "flex flex-col items-center justify-center pointer-events-auto w-full h-full",
+        compactLayout ? "pt-8 pb-2" : "pt-20",
+      )}>
         {/* Plus Zone */}
-        <button 
-          onClick={() => onScoreChange(1)}
-          className={cn(
-            "z-30 p-8 transition-all active:scale-90 hover:opacity-100 opacity-20",
-            color === 'primary' ? "text-primary" : "text-secondary"
-          )}
-        >
-          <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-            <Plus size={64} strokeWidth={3} />
-          </motion.div>
-        </button>
+        {!compactLayout && (
+          <button 
+            onClick={() => onScoreChange(1)}
+            className={cn(
+              "z-30 p-8 transition-all active:scale-90 hover:opacity-100 opacity-20",
+              color === 'primary' ? "text-primary" : "text-secondary"
+            )}
+          >
+            <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+              <Plus size={64} strokeWidth={3} />
+            </motion.div>
+          </button>
+        )}
 
         {/* Number Zone */}
         <div 
@@ -213,7 +229,8 @@ export const TeamSide = ({
             className="flex flex-col items-center"
           >
             <span className={cn(
-              "font-headline text-[28rem] font-black leading-none tracking-tighter transition-all duration-300",
+              "font-headline font-black leading-none tracking-tighter transition-all duration-300",
+              compactLayout ? "text-[10rem]" : "text-[28rem]",
               color === 'primary' ? "text-primary score-glow-primary" : "text-secondary score-glow-secondary"
             )}>
               {score}
@@ -222,17 +239,19 @@ export const TeamSide = ({
         </div>
 
         {/* Minus Zone */}
-        <button 
-          onClick={() => onScoreChange(-1)}
-          className={cn(
-            "z-30 p-8 transition-all active:scale-90 hover:opacity-100 opacity-20",
-            color === 'primary' ? "text-primary" : "text-secondary"
-          )}
-        >
-          <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-            <Minus size={64} strokeWidth={3} />
-          </motion.div>
-        </button>
+        {!compactLayout && (
+          <button 
+            onClick={() => onScoreChange(-1)}
+            className={cn(
+              "z-30 p-8 transition-all active:scale-90 hover:opacity-100 opacity-20",
+              color === 'primary' ? "text-primary" : "text-secondary"
+            )}
+          >
+            <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+              <Minus size={64} strokeWidth={3} />
+            </motion.div>
+          </button>
+        )}
       </div>
 
       {/* Side Accent */}
