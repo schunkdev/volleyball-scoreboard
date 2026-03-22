@@ -69,18 +69,18 @@ export const SettingsDialog = ({
           <div className="relative">
             <div 
               onClick={() => setShowThemeSelector(!showThemeSelector)}
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-colors"
+              className="flex cursor-pointer items-center justify-between gap-3 p-4 rounded-2xl border border-white/5 bg-white/5 transition-colors hover:bg-white/10"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 text-white/40">
-                  <Palette size={24} />
+              <div className="flex min-w-0 flex-1 items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/40">
+                  <Palette size={24} className="shrink-0" />
                 </div>
-                <div className="flex flex-col">
+                <div className="flex min-w-0 flex-1 flex-col">
                   <span className="text-xs font-bold uppercase tracking-widest text-on-surface">Theme Selection</span>
-                  <span className="text-[10px] text-on-surface-variant mt-0.5 leading-relaxed">Customize visual style and contrast.</span>
+                  <span className="mt-0.5 text-[10px] leading-relaxed text-on-surface-variant">Customize visual style and contrast.</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-on-surface">
+              <div className="flex shrink-0 items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-on-surface">
                 {currentTheme.name}
                 <ChevronDown size={14} className={cn("transition-transform", showThemeSelector && "rotate-180")} />
               </div>

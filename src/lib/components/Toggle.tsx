@@ -5,29 +5,32 @@ import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 export const Toggle = ({ active, onToggle, label, sublabel, icon: Icon }: any) => (
-  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-    <div className="flex items-center gap-4">
+  <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/5">
+    <div className="flex min-w-0 flex-1 items-center gap-4">
       <div className={cn(
-        "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
         active ? "bg-primary/20 text-primary" : "bg-white/5 text-on-surface-variant"
       )}>
-        <Icon size={24} />
+        <Icon size={24} className="shrink-0" />
       </div>
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <span className="text-xs font-bold uppercase tracking-widest text-on-surface">{label}</span>
-        <span className="text-[10px] text-on-surface-variant mt-0.5 leading-relaxed">{sublabel}</span>
+        <span className="mt-0.5 text-[10px] leading-relaxed text-on-surface-variant">{sublabel}</span>
       </div>
     </div>
-    <button 
+    <button
+      type="button"
       onClick={onToggle}
       className={cn(
-        "w-12 h-6 rounded-full relative transition-colors duration-300",
+        "relative shrink-0 w-12 h-6 rounded-full transition-colors duration-300",
         active ? "bg-primary" : "bg-white/10"
       )}
     >
-      <motion.div 
-        animate={{ x: active ? 26 : 2 }}
-        className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+      <motion.div
+        initial={false}
+        animate={{ x: active ? 28 : 0 }}
+        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+        className="absolute left-0.5 top-1 h-4 w-4 rounded-full bg-white shadow-sm"
       />
     </button>
   </div>
