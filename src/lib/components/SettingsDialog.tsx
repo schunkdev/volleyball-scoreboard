@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Palette, ChevronDown, Zap, Infinity as InfinityIcon, Check } from 'lucide-react';
-import { Toggle } from './Toggle';
-import { themes } from '@/lib/themes';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Check, ChevronDown, Infinity as InfinityIcon, Palette, Zap } from "lucide-react";
+import { Toggle } from "./Toggle";
+import { themes } from "@/lib/themes";
+import { cn } from "@/lib/utils";
 
-export const SettingsDialog = ({ 
-  isOpen, 
-  onClose, 
+export const SettingsDialog = ({
+  isOpen,
+  onClose,
   config,
-  onSave 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
+  onSave,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
   config: { gameMode: boolean; unlimitedSets: boolean; theme: string };
   onSave: (newConfig: { gameMode: boolean; unlimitedSets: boolean; theme: string }) => void;
 }) => {
@@ -22,92 +22,104 @@ export const SettingsDialog = ({
   const [unlimitedSets, setUnlimitedSets] = useState(config.unlimitedSets);
   const [theme, setTheme] = useState(config.theme);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
+
   const handleShowGuideAgain = () => {
-    window.dispatchEvent(new Event('vb-scoreboard-show-quickguide'));
+    window.dispatchEvent(new Event("vb-scoreboard-show-quickguide"));
     onClose();
   };
 
   if (!isOpen) return null;
 
-  const currentTheme = themes.find(t => t.id === theme) || themes[0];
+  const currentTheme = themes.find((t) => t.id === theme) || themes[0];
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 z-[100] flex items-center justify-center p-3 md:p-6 pointer-events-auto bg-black/60 backdrop-blur-md"
+      className="pointer-events-auto absolute inset-0 z-[100] flex cursor-pointer items-center justify-center bg-black/60 p-3 backdrop-blur-md md:p-6"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-surface w-full max-w-[520px] max-h-[calc(100dvh-max(env(safe-area-inset-top),0.75rem)-max(env(safe-area-inset-bottom),0.75rem)-1.5rem)] overflow-y-auto p-5 md:p-10 rounded-3xl md:rounded-[40px] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] flex flex-col items-center"
+        className="flex max-h-[calc(100dvh-max(env(safe-area-inset-top),0.75rem)-max(env(safe-area-inset-bottom),0.75rem)-1.5rem)] w-full max-w-[520px] cursor-default flex-col items-center overflow-y-auto rounded-3xl border border-white/10 bg-surface p-5 shadow-[0_30px_60px_rgba(0,0,0,0.5)] md:rounded-[40px] md:p-10"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-3xl md:text-5xl font-headline font-black italic tracking-tighter uppercase mb-2 text-on-surface">Settings</h2>
-        <div className="w-12 h-1.5 bg-primary rounded-full mb-5 md:mb-10 shadow-[0_0_15px_var(--theme-primary)]" />
+        <h2 className="mb-2 font-headline text-3xl font-black uppercase italic tracking-tighter text-on-surface md:text-5xl">
+          Settings
+        </h2>
+        <div className="mb-5 h-1.5 w-12 rounded-full bg-primary shadow-[0_0_15px_var(--theme-primary)] md:mb-8" />
 
-        <div className="w-full space-y-4 mb-6 md:mb-10">
-          <Toggle 
-            active={gameMode} 
-            onToggle={() => setGameMode(!gameMode)} 
-            label="Game Mode" 
+        <div className="mb-6 w-full space-y-4 md:mb-10">
+          <Toggle
+            active={gameMode}
+            onToggle={() => setGameMode(!gameMode)}
+            label="Game Mode"
             sublabel="Automatic set wins at 25 points (2-point lead required). Score resets on set win."
             icon={Zap}
           />
-          <Toggle 
-            active={unlimitedSets} 
-            onToggle={() => setUnlimitedSets(!unlimitedSets)} 
-            label="Unlimited Sets" 
+          <Toggle
+            active={unlimitedSets}
+            onToggle={() => setUnlimitedSets(!unlimitedSets)}
+            label="Unlimited Sets"
             sublabel="Match continues indefinitely. Disables set limits and 'Match Over' announcements."
             icon={InfinityIcon}
           />
 
-          {/* Theme Selection */}
           <div className="relative">
-            <div 
+            <div
               onClick={() => setShowThemeSelector(!showThemeSelector)}
-              className="flex cursor-pointer items-center justify-between gap-3 p-4 rounded-2xl border border-white/5 bg-white/5 transition-colors hover:bg-white/10"
+              className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10"
             >
               <div className="flex min-w-0 flex-1 items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/40">
                   <Palette size={24} className="shrink-0" />
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface">Theme Selection</span>
-                  <span className="mt-0.5 text-[10px] leading-relaxed text-on-surface-variant">Customize visual style and contrast.</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-on-surface">
+                    Theme Selection
+                  </span>
+                  <span className="mt-0.5 text-[10px] leading-relaxed text-on-surface-variant">
+                    Customize visual style and contrast.
+                  </span>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-on-surface">
                 {currentTheme.name}
-                <ChevronDown size={14} className={cn("transition-transform", showThemeSelector && "rotate-180")} />
+                <ChevronDown
+                  size={14}
+                  className={cn("transition-transform", showThemeSelector && "rotate-180")}
+                />
               </div>
             </div>
 
             <AnimatePresence>
               {showThemeSelector && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full left-0 right-0 mt-2 p-2 bg-surface-variant rounded-2xl border border-white/10 shadow-xl z-50"
+                  className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border border-white/10 bg-surface-variant p-2 shadow-xl"
                 >
-                  {themes.map(t => (
+                  {themes.map((t) => (
                     <button
                       key={t.id}
+                      type="button"
                       onClick={() => {
                         setTheme(t.id);
                         setShowThemeSelector(false);
                       }}
                       className={cn(
-                        "w-full flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors",
-                        theme === t.id ? "bg-primary/20 text-primary" : "text-on-surface-variant hover:bg-white/5"
+                        "flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors",
+                        theme === t.id
+                          ? "bg-primary/20 text-primary"
+                          : "text-on-surface-variant hover:bg-white/5",
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: t.colors.primary }} />
+                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: t.colors.primary }} />
                         {t.name}
                       </div>
                       {theme === t.id && <Check size={14} />}
@@ -119,29 +131,31 @@ export const SettingsDialog = ({
           </div>
         </div>
 
-        <div className="w-full mb-4 md:mb-5">
+        <div className="mb-4 w-full md:mb-5">
           <button
             type="button"
             onClick={handleShowGuideAgain}
-            className="text-xs uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary underline underline-offset-4 transition-colors"
+            className="cursor-pointer text-xs uppercase tracking-[0.2em] text-on-surface-variant underline underline-offset-4 transition-colors hover:text-primary"
           >
             Show quick guide again
           </button>
         </div>
 
-        <div className="flex gap-3 md:gap-4 w-full">
-          <button 
+        <div className="flex w-full gap-3 md:gap-4">
+          <button
+            type="button"
             onClick={onClose}
-            className="flex-1 py-3.5 md:py-5 rounded-2xl bg-white/5 hover:bg-white/10 font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 text-on-surface"
+            className="flex-1 cursor-pointer rounded-2xl bg-white/5 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-on-surface transition-all hover:bg-white/10 active:scale-95 md:py-5"
           >
             Cancel
           </button>
-          <button 
+          <button
+            type="button"
             onClick={() => {
               onSave({ gameMode, unlimitedSets, theme });
               onClose();
             }}
-            className="flex-1 py-3.5 md:py-5 rounded-2xl bg-primary text-primary-contrast font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 shadow-[0_0_30px_var(--theme-primary-muted)]"
+            className="flex-1 cursor-pointer rounded-2xl bg-primary py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-primary-contrast shadow-[0_0_30px_var(--theme-primary-muted)] transition-all active:scale-95 md:py-5"
           >
             Save Config
           </button>

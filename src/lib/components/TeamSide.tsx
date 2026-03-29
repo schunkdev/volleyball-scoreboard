@@ -18,6 +18,7 @@ export const TeamSide = ({
   onSetWinIncrement,
   unlimitedSets = false,
   compactLayout = false,
+  readOnly = false,
 }: { 
   name: string; 
   score: number; 
@@ -31,6 +32,7 @@ export const TeamSide = ({
   onSetWinIncrement: () => void;
   unlimitedSets?: boolean;
   compactLayout?: boolean;
+  readOnly?: boolean;
 }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [lastDelta, setLastDelta] = useState(0);
@@ -43,6 +45,7 @@ export const TeamSide = ({
   const ignoreMouseUntilRef = useRef<number>(0);
 
   const startHold = (delta: number) => {
+    if (readOnly) return;
     if (holdTimerRef.current) clearInterval(holdTimerRef.current);
     holdTimerRef.current = setInterval(() => {
       onScoreChange(delta * 5);
@@ -59,6 +62,7 @@ export const TeamSide = ({
 
   // --- Name Long Press Handlers ---
   const handleNameStart = () => {
+    if (readOnly) return;
     longPressTriggeredRef.current = false;
     nameLongPressTimerRef.current = setTimeout(() => {
       onNameLongPress();
@@ -74,6 +78,7 @@ export const TeamSide = ({
   };
 
   const handleNameClick = () => {
+    if (readOnly) return;
     if (!longPressTriggeredRef.current) {
       onSetWinIncrement();
     }
@@ -81,6 +86,7 @@ export const TeamSide = ({
 
   // --- Score Swipe/Tap/Hold Handlers ---
   const handleScoreStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (readOnly) return;
     if ("touches" in e) {
       ignoreMouseUntilRef.current = Date.now() + 800;
     } else if (Date.now() < ignoreMouseUntilRef.current) {
@@ -99,6 +105,7 @@ export const TeamSide = ({
   };
 
   const handleScoreEnd = (e: React.TouchEvent | React.MouseEvent) => {
+    if (readOnly) return;
     if (!('changedTouches' in e) && Date.now() < ignoreMouseUntilRef.current) {
       return;
     }
@@ -124,6 +131,7 @@ export const TeamSide = ({
   };
 
   const handleScoreMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (readOnly) return;
     if (!('touches' in e) && Date.now() < ignoreMouseUntilRef.current) {
       return;
     }
@@ -153,7 +161,7 @@ export const TeamSide = ({
   return (
     <div 
       className={cn(
-        "relative w-1/2 h-full flex flex-col items-center justify-center overflow-hidden select-none touch-none transition-colors duration-700",
+        "relative w-1/2 h-full flex flex-col items-center justify-center overflow-visible select-none touch-none transition-colors duration-700",
         color === 'primary' ? "bg-bg-secondary" : "bg-bg"
       )}
     >
@@ -166,7 +174,8 @@ export const TeamSide = ({
       {/* Team Info Area - Separate Hitbox for Name Long Press */}
       <div
         className={cn(
-          "absolute flex flex-col items-center z-20 pointer-events-auto cursor-pointer group/name",
+          "absolute flex flex-col items-center z-20 group/name",
+          readOnly ? "pointer-events-none cursor-default" : "pointer-events-auto cursor-pointer",
           compactLayout ? "top-3" : "top-20",
         )}
         onMouseDown={handleNameStart}
@@ -210,11 +219,12 @@ export const TeamSide = ({
 
       {/* Score Area - Main Interaction */}
       <div className={cn(
-        "flex flex-col items-center justify-center pointer-events-auto w-full h-full",
+        "flex flex-col items-center justify-center w-full h-full",
+        readOnly ? "pointer-events-none" : "pointer-events-auto",
         compactLayout ? "pt-8 pb-2" : "pt-[clamp(11rem,24vh,15rem)] pb-6",
       )}>
         {/* Plus Zone */}
-        {!compactLayout && (
+        {!compactLayout && !readOnly && (
           <button 
             onClick={() => onScoreChange(1)}
             className={cn(
@@ -230,7 +240,7 @@ export const TeamSide = ({
 
         {/* Number Zone */}
         <div 
-          className="relative z-20 cursor-pointer"
+          className={cn("relative z-20", readOnly ? "cursor-default" : "cursor-pointer")}
           onMouseMove={handleScoreMove}
           onMouseUp={handleScoreEnd}
           onMouseLeave={handleScoreEnd}
@@ -254,7 +264,7 @@ export const TeamSide = ({
         </div>
 
         {/* Minus Zone */}
-        {!compactLayout && (
+        {!compactLayout && !readOnly && (
           <button 
             onClick={() => onScoreChange(-1)}
             className={cn(

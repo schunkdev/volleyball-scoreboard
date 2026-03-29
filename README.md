@@ -29,6 +29,10 @@
 - Theme selection with local persistence across sessions.
 - Built-in first-run quick guide and manual re-open support.
 
+### Live sharing
+
+- [documentation/live-sharing.md](documentation/live-sharing.md) — Firebase Realtime Database broadcast, server API, scheduled cleanup, and environment variables.
+
 ## Development
 
 Bootstrapped with:

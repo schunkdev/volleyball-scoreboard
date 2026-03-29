@@ -38,10 +38,16 @@
 
 @layer utilities {
   .score-glow-primary {
-    text-shadow: 0 0 40px var(--theme-primary-muted);
+    text-shadow:
+      0 0 20px var(--theme-primary-muted),
+      0 0 48px var(--theme-primary-muted),
+      0 0 88px var(--theme-primary-muted);
   }
   .score-glow-secondary {
-    text-shadow: 0 0 40px var(--theme-secondary-muted);
+    text-shadow:
+      0 0 20px var(--theme-secondary-muted),
+      0 0 48px var(--theme-secondary-muted),
+      0 0 88px var(--theme-secondary-muted);
   }
   .glass-panel {
     backdrop-filter: blur(24px);
@@ -51,6 +57,25 @@
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+  }
+
+  /** Primary “on air” shimmer for live Radio icons */
+  @keyframes live-shimmer {
+    0%,
+    100% {
+      opacity: 0.88;
+      filter: drop-shadow(0 0 3px var(--theme-primary)) drop-shadow(0 0 6px var(--theme-primary-muted));
+    }
+    50% {
+      opacity: 1;
+      filter: drop-shadow(0 0 10px var(--theme-primary)) drop-shadow(0 0 18px var(--theme-primary-muted))
+        brightness(1.15);
+    }
+  }
+
+  .animate-live-shimmer {
+    color: var(--theme-primary);
+    animation: live-shimmer 1.8s ease-in-out infinite;
   }
 }
 

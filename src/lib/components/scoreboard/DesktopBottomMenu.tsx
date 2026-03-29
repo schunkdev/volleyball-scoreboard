@@ -35,7 +35,7 @@ export function DesktopBottomMenu({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center pb-8 pointer-events-none">
-      <div className="flex gap-4 mb-6 pointer-events-auto">
+      <div className="flex flex-wrap justify-center gap-4 mb-6 pointer-events-auto max-w-[95vw]">
         <button
           onClick={onReset}
           className="flex items-center gap-2 px-5 py-2.5 glass-panel rounded-full border border-white/5 hover:bg-white/10 transition-all active:scale-95"

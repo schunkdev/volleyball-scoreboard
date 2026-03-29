@@ -1,8 +1,8 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React, { Fragment, useCallback, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Trophy } from "lucide-react";
+import { Loader2, Trophy } from "lucide-react";
 
 // Components
 import { OrientationGuard } from "@/lib/components/OrientationGuard";
@@ -10,6 +10,7 @@ import { QuickGuide } from "@/lib/components/QuickGuide";
 import { ScoreDialog } from "@/lib/components/ScoreDialog";
 import { EditTeamDialog } from "@/lib/components/EditTeamDialog";
 import { SettingsDialog } from "@/lib/components/SettingsDialog";
+import { LiveSettingsDialog } from "@/lib/components/LiveSettingsDialog";
 import { TeamSide } from "@/lib/components/TeamSide";
 import { ScoreboardHeader } from "@/lib/components/scoreboard/ScoreboardHeader";
 import { DesktopBottomMenu } from "@/lib/components/scoreboard/DesktopBottomMenu";
@@ -19,6 +20,34 @@ import { useScoreboardController } from "@/lib/hooks/useScoreboardController";
 
 export default function VolleyballScoreboard() {
   const scoreboard = useScoreboardController();
+  const [liveStartError, setLiveStartError] = useState<string | null>(null);
+
+  const handleGoLive = useCallback(async () => {
+    setLiveStartError(null);
+    try {
+      await scoreboard.startLiveSession();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not start live session";
+      setLiveStartError(msg);
+      throw e;
+    }
+  }, [scoreboard]);
+
+  const handleStopLive = useCallback(async () => {
+    setLiveStartError(null);
+    await scoreboard.stopLiveSession();
+    scoreboard.setLiveSettingsDialogOpen(false);
+  }, [scoreboard]);
+
+  const handleCopyLiveLink = useCallback(async () => {
+    const url = scoreboard.liveShareUrl;
+    if (!url || typeof navigator === "undefined" || !navigator.clipboard) return;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      /* ignore */
+    }
+  }, [scoreboard.liveShareUrl]);
 
   return (
     <main
@@ -38,7 +67,34 @@ export default function VolleyballScoreboard() {
         isFullscreen={scoreboard.isFullscreen}
         onToggleFullscreen={scoreboard.toggleFullscreen}
         onOpenSettings={() => scoreboard.setSettingsDialogOpen(true)}
+        onOpenLiveSettings={() => scoreboard.setLiveSettingsDialogOpen(true)}
+        liveMode={scoreboard.isLiveHosting ? "host" : "off"}
+        liveCode={scoreboard.liveCode}
+        liveViewerCount={scoreboard.liveViewerCount}
+        firebaseOnline={scoreboard.firebaseOnline}
+        enableHostLiveActions
+        hostLiveInSettingsOnly
       />
+
+      {liveStartError && (
+        <div className="absolute top-24 left-1/2 z-[45] max-w-md -translate-x-1/2 rounded-2xl border border-red-500/30 bg-red-950/80 px-4 py-2 text-center text-[10px] font-bold uppercase tracking-widest text-red-100 backdrop-blur-md pointer-events-auto">
+          {liveStartError}
+        </div>
+      )}
+
+      {!scoreboard.localStorageReady && (
+        <div
+          className="absolute inset-0 z-[98] flex flex-col items-center justify-center gap-4 bg-bg/90 backdrop-blur-md pointer-events-auto"
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+        >
+          <Loader2 className="h-10 w-10 shrink-0 animate-spin text-primary" aria-hidden />
+          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+            Loading saved scoreboard
+          </p>
+        </div>
+      )}
 
       <div className="flex h-full w-full">
         <TeamSide
@@ -48,6 +104,7 @@ export default function VolleyballScoreboard() {
           label={scoreboard.leftTeam.label}
           side="left"
           color={scoreboard.leftTeam.color}
+          readOnly={scoreboard.readOnly}
           onScoreChange={(d) => scoreboard.handleScoreChange(scoreboard.leftTeam.id, d)}
           onScoreDialogRequest={() => scoreboard.setScoreDialogOpen(scoreboard.leftTeam.id)}
           onNameLongPress={() => scoreboard.setNameDialogOpen(scoreboard.leftTeam.id)}
@@ -62,6 +119,7 @@ export default function VolleyballScoreboard() {
           label={scoreboard.rightTeam.label}
           side="right"
           color={scoreboard.rightTeam.color}
+          readOnly={scoreboard.readOnly}
           onScoreChange={(d) => scoreboard.handleScoreChange(scoreboard.rightTeam.id, d)}
           onScoreDialogRequest={() => scoreboard.setScoreDialogOpen(scoreboard.rightTeam.id)}
           onNameLongPress={() => scoreboard.setNameDialogOpen(scoreboard.rightTeam.id)}
@@ -94,8 +152,6 @@ export default function VolleyballScoreboard() {
         isCompactMobile={scoreboard.isCompactMobile}
         mobileMenuOpen={scoreboard.mobileMenuOpen}
         canUndo={scoreboard.canUndo}
-        supportsFullscreen={scoreboard.supportsFullscreen}
-        isFullscreen={scoreboard.isFullscreen}
         onToggleOpen={() => scoreboard.setMobileMenuOpen((prev) => !prev)}
         onReset={() => {
           scoreboard.resetMatch();
@@ -107,14 +163,6 @@ export default function VolleyballScoreboard() {
         }}
         onUndo={() => {
           scoreboard.handleUndo();
-          scoreboard.setMobileMenuOpen(false);
-        }}
-        onOpenSettings={() => {
-          scoreboard.setSettingsDialogOpen(true);
-          scoreboard.setMobileMenuOpen(false);
-        }}
-        onToggleFullscreen={() => {
-          scoreboard.toggleFullscreen();
           scoreboard.setMobileMenuOpen(false);
         }}
       />
@@ -226,6 +274,20 @@ export default function VolleyballScoreboard() {
               scoreboard.setUnlimitedSets(cfg.unlimitedSets);
               scoreboard.setThemeId(cfg.theme);
             }}
+          />
+        )}
+        {scoreboard.liveSettingsDialogOpen && (
+          <LiveSettingsDialog
+            isOpen={true}
+            onClose={() => scoreboard.setLiveSettingsDialogOpen(false)}
+            isLiveHosting={scoreboard.isLiveHosting}
+            liveCode={scoreboard.liveCode}
+            liveShareUrl={scoreboard.liveShareUrl}
+            livePublishError={scoreboard.livePublishError}
+            firebaseConfigured={scoreboard.firebaseConfigured}
+            onGoLive={handleGoLive}
+            onStopLive={handleStopLive}
+            onCopyLiveLink={handleCopyLiveLink}
           />
         )}
       </AnimatePresence>

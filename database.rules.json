@@ -1,0 +1,25 @@
+{
+  "rules": {
+    "liveSessions": {
+      ".indexOn": ["expiresAt"],
+      "$code": {
+        ".read": "!data.exists() || (data.child('isLive').val() === true && data.child('expiresAt').val() > now)",
+        ".write": false
+      }
+    },
+    "liveSessionSecrets": {
+      "$code": {
+        ".read": false,
+        ".write": false
+      }
+    },
+    "liveSessionWatchers": {
+      "$code": {
+        ".read": "!data.exists() || !root.child('liveSessions').child($code).exists() || (root.child('liveSessions').child($code).child('isLive').val() === true && root.child('liveSessions').child($code).child('expiresAt').val() > now)",
+        "$watcherId": {
+          ".write": "auth === null && $watcherId.matches(/^w_[A-Za-z0-9_-]{10,40}$/) && (!newData.exists() || (newData.hasChildren(['joinedAt', 'lastSeenAt']) && newData.child('joinedAt').isNumber() && newData.child('lastSeenAt').isNumber() && newData.child('joinedAt').val() <= newData.child('lastSeenAt').val() && newData.child('joinedAt').val() > 1000000000000 && newData.child('lastSeenAt').val() > 1000000000000))"
+        }
+      }
+    }
+  }
+}
