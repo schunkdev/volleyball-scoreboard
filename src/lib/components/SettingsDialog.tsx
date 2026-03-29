@@ -141,7 +141,7 @@ export const SettingsDialog = ({
             active={gameMode}
             onToggle={() => setGameMode(!gameMode)}
             label="Game Mode"
-            sublabel="Automatic set wins at 25 points (2-point lead required). Score resets on set win."
+            sublabel="Automatic set wins at 25 points (2-point lead required). Score resets on set win. Under each team name, dots show timeouts (2 per set); they clear when a set ends."
             icon={Zap}
           />
           <Toggle

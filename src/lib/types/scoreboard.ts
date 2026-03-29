@@ -12,6 +12,9 @@ export type HistoryEntry = {
   setsWonB: number;
   isSwapped: boolean;
   completedSets: CompletedSet[];
+  /** Per-set timeouts used (0–2); omitted in legacy snapshots */
+  timeoutsUsedA?: number;
+  timeoutsUsedB?: number;
 };
 
 export type TeamView = {
@@ -34,6 +37,9 @@ export type LiveScoreboardState = {
   isSwapped: boolean;
   completedSets: CompletedSet[];
   gameMode: boolean;
+  /** Timeouts taken this set (0–2 each); reset when a set ends in game mode */
+  timeoutsUsedA: number;
+  timeoutsUsedB: number;
   unlimitedSets: boolean;
   themeId: string;
   /** Normalized `#rrggbb` or empty string = use theme default for that side */

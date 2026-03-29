@@ -50,6 +50,8 @@ type PersistedSnapshotV1 = {
   themeId: string;
   teamColorA: string;
   teamColorB: string;
+  timeoutsUsedA?: number;
+  timeoutsUsedB?: number;
 };
 
 function isCompletedSet(x: unknown): x is CompletedSet {
@@ -108,6 +110,10 @@ function parsePersistedSnapshot(raw: string | null): PersistedSnapshotV1 | null 
       typeof o.teamColorA === "string" ? parseHexColor(o.teamColorA) ?? "" : "";
     const teamColorB =
       typeof o.teamColorB === "string" ? parseHexColor(o.teamColorB) ?? "" : "";
+    const clampTo = (n: unknown, max: number) => {
+      if (typeof n !== "number" || !Number.isInteger(n)) return 0;
+      return Math.min(max, Math.max(0, n));
+    };
     return {
       v: 1,
       scoreA: o.scoreA as number,
@@ -124,6 +130,8 @@ function parsePersistedSnapshot(raw: string | null): PersistedSnapshotV1 | null 
       themeId: o.themeId as string,
       teamColorA,
       teamColorB,
+      timeoutsUsedA: clampTo(o.timeoutsUsedA, 2),
+      timeoutsUsedB: clampTo(o.timeoutsUsedB, 2),
     };
   } catch {
     return null;
@@ -145,6 +153,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
   const [scoreB, setScoreB] = useState(0);
   const [setsWonA, setSetsWonA] = useState(0);
   const [setsWonB, setSetsWonB] = useState(0);
+  const [timeoutsUsedA, setTimeoutsUsedA] = useState(0);
+  const [timeoutsUsedB, setTimeoutsUsedB] = useState(0);
   const [nameA, setNameA] = useState("Team A");
   const [nameB, setNameB] = useState("Team B");
   const [scoreDialogOpen, setScoreDialogOpen] = useState<TeamId | null>(null);
@@ -194,6 +204,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       setScoreB(full.scoreB);
       setSetsWonA(full.setsWonA);
       setSetsWonB(full.setsWonB);
+      setTimeoutsUsedA(full.timeoutsUsedA ?? 0);
+      setTimeoutsUsedB(full.timeoutsUsedB ?? 0);
       setNameA(full.nameA);
       setNameB(full.nameB);
       setHistory(full.history);
@@ -219,6 +231,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       scoreB,
       setsWonA,
       setsWonB,
+      timeoutsUsedA,
+      timeoutsUsedB,
       nameA,
       nameB,
       history,
@@ -242,6 +256,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     scoreB,
     setsWonA,
     setsWonB,
+    timeoutsUsedA,
+    timeoutsUsedB,
     nameA,
     nameB,
     history,
@@ -340,6 +356,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     isSwapped: boolean;
     completedSets: CompletedSet[];
     gameMode: boolean;
+    timeoutsUsedA: number;
+    timeoutsUsedB: number;
     unlimitedSets: boolean;
     themeId: string;
     teamColorA: string;
@@ -349,6 +367,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setScoreB(s.scoreB);
     setSetsWonA(s.setsWonA);
     setSetsWonB(s.setsWonB);
+    setTimeoutsUsedA(Math.min(2, Math.max(0, Math.floor(s.timeoutsUsedA))));
+    setTimeoutsUsedB(Math.min(2, Math.max(0, Math.floor(s.timeoutsUsedB))));
     setNameA(s.nameA);
     setNameB(s.nameB);
     setIsSwapped(s.isSwapped);
@@ -492,6 +512,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       isSwapped,
       completedSets,
       gameMode,
+      timeoutsUsedA,
+      timeoutsUsedB,
       unlimitedSets,
       themeId,
       teamColorA,
@@ -513,6 +535,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     isSwapped,
     completedSets,
     gameMode,
+    timeoutsUsedA,
+    timeoutsUsedB,
     unlimitedSets,
     themeId,
     teamColorA,
@@ -562,6 +586,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       isSwapped,
       completedSets,
       gameMode,
+      timeoutsUsedA,
+      timeoutsUsedB,
       unlimitedSets,
       themeId,
       teamColorA,
@@ -584,6 +610,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     isSwapped,
     completedSets,
     gameMode,
+    timeoutsUsedA,
+    timeoutsUsedB,
     unlimitedSets,
     themeId,
     teamColorA,
@@ -618,7 +646,16 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setHistory((prev) =>
       [
         ...prev,
-        { scoreA, scoreB, setsWonA, setsWonB, isSwapped, completedSets: [...completedSets] },
+        {
+          scoreA,
+          scoreB,
+          setsWonA,
+          setsWonB,
+          isSwapped,
+          completedSets: [...completedSets],
+          timeoutsUsedA,
+          timeoutsUsedB,
+        },
       ].slice(-50),
     );
   };
@@ -629,6 +666,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setScoreB(0);
     setSetsWonA(0);
     setSetsWonB(0);
+    setTimeoutsUsedA(0);
+    setTimeoutsUsedB(0);
     setIsSwapped(false);
     setCompletedSets([]);
     setHistory([]);
@@ -643,6 +682,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setSetsWonB(lastState.setsWonB);
     setIsSwapped(lastState.isSwapped);
     setCompletedSets(lastState.completedSets);
+    setTimeoutsUsedA(lastState.timeoutsUsedA ?? 0);
+    setTimeoutsUsedB(lastState.timeoutsUsedB ?? 0);
     setHistory((prev) => prev.slice(0, -1));
   };
 
@@ -656,6 +697,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
         setSetsWonA((prev) => prev + 1);
         setScoreA(0);
         setScoreB(0);
+        setTimeoutsUsedA(0);
+        setTimeoutsUsedB(0);
       } else {
         setScoreA(score);
       }
@@ -666,6 +709,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       setSetsWonB((prev) => prev + 1);
       setScoreA(0);
       setScoreB(0);
+      setTimeoutsUsedA(0);
+      setTimeoutsUsedB(0);
     } else {
       setScoreB(score);
     }
@@ -683,6 +728,20 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     const max = unlimitedSets ? 99 : 3;
     if (team === "A") setSetsWonA((prev) => Math.min(max, prev + 1));
     else setSetsWonB((prev) => Math.min(max, prev + 1));
+    if (gameMode) {
+      setTimeoutsUsedA(0);
+      setTimeoutsUsedB(0);
+    }
+  };
+
+  const handleTimeoutsCycle = (team: TeamId) => {
+    if (isSubscriberView || !gameMode || unlimitedSets) return;
+    pushToHistory();
+    if (team === "A") {
+      setTimeoutsUsedA((prev) => (prev + 1) % 3);
+    } else {
+      setTimeoutsUsedB((prev) => (prev + 1) % 3);
+    }
   };
 
   const handleSwitchSides = () => {
@@ -764,6 +823,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     isFullscreen,
     isSwapped,
     completedSets,
+    timeoutsUsedA,
+    timeoutsUsedB,
     mobileMenuOpen,
     isCompactMobile,
     gameMode,
@@ -809,6 +870,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     updateScore,
     handleScoreChange,
     handleSetWinIncrement,
+    handleTimeoutsCycle,
     handleSwitchSides,
     toggleFullscreen,
     startLiveSession,

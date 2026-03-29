@@ -124,6 +124,9 @@ export function parseLiveScoreboardState(raw: unknown): LiveScoreboardState | nu
   const teamColorA = parseTeamColorField(raw.teamColorA);
   const teamColorB = parseTeamColorField(raw.teamColorB);
 
+  const timeoutsUsedA = clampTimeoutsUsed(num("timeoutsUsedA"));
+  const timeoutsUsedB = clampTimeoutsUsed(num("timeoutsUsedB"));
+
   return {
     scoreA,
     scoreB,
@@ -134,11 +137,18 @@ export function parseLiveScoreboardState(raw: unknown): LiveScoreboardState | nu
     isSwapped,
     completedSets,
     gameMode,
+    timeoutsUsedA,
+    timeoutsUsedB,
     unlimitedSets,
     themeId,
     teamColorA,
     teamColorB,
   };
+}
+
+function clampTimeoutsUsed(v: number | null): number {
+  if (v === null || !Number.isInteger(v)) return 0;
+  return Math.min(2, Math.max(0, v));
 }
 
 function clampTeamColor(s: string): string {
@@ -156,12 +166,17 @@ export function buildLiveScoreboardStateFromController(input: {
   isSwapped: boolean;
   completedSets: CompletedSet[];
   gameMode: boolean;
+  timeoutsUsedA: number;
+  timeoutsUsedB: number;
   unlimitedSets: boolean;
   themeId: string;
   teamColorA: string;
   teamColorB: string;
 }): LiveScoreboardState {
   const clampInt = (n: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, Math.floor(Number.isFinite(n) ? n : 0)));
+
+  const clampTo = (n: number, min: number, max: number) =>
     Math.min(max, Math.max(min, Math.floor(Number.isFinite(n) ? n : 0)));
 
   const name = (s: string, fallback: string) => {
@@ -186,6 +201,8 @@ export function buildLiveScoreboardStateFromController(input: {
     isSwapped: Boolean(input.isSwapped),
     completedSets: sets,
     gameMode: Boolean(input.gameMode),
+    timeoutsUsedA: clampTo(input.timeoutsUsedA, 0, 2),
+    timeoutsUsedB: clampTo(input.timeoutsUsedB, 0, 2),
     unlimitedSets: Boolean(input.unlimitedSets),
     themeId:
       typeof input.themeId === "string" && input.themeId.length <= 64

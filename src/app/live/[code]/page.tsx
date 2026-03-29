@@ -8,7 +8,6 @@ import { useParams } from "next/navigation";
 
 import { TeamSide } from "@/lib/components/TeamSide";
 import { ScoreboardHeader } from "@/lib/components/scoreboard/ScoreboardHeader";
-import { MobileSetIndicator } from "@/lib/components/scoreboard/MobileSetIndicator";
 import { useScoreboardController } from "@/lib/hooks/useScoreboardController";
 import { normalizeLiveCode } from "@/lib/live/liveScoreboardState";
 import { cn } from "@/lib/utils";
@@ -120,6 +119,12 @@ export default function LiveSubscriberPage() {
           side="left"
           color={scoreboard.leftTeam.color}
           readOnly
+          gameMode={scoreboard.gameMode}
+          timeoutsUsed={
+            scoreboard.leftTeam.id === "A"
+              ? scoreboard.timeoutsUsedA
+              : scoreboard.timeoutsUsedB
+          }
           onScoreChange={() => {}}
           onScoreDialogRequest={() => {}}
           onNameLongPress={() => {}}
@@ -135,6 +140,12 @@ export default function LiveSubscriberPage() {
           side="right"
           color={scoreboard.rightTeam.color}
           readOnly
+          gameMode={scoreboard.gameMode}
+          timeoutsUsed={
+            scoreboard.rightTeam.id === "A"
+              ? scoreboard.timeoutsUsedA
+              : scoreboard.timeoutsUsedB
+          }
           onScoreChange={() => {}}
           onScoreDialogRequest={() => {}}
           onNameLongPress={() => {}}
@@ -147,14 +158,6 @@ export default function LiveSubscriberPage() {
       <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 z-10 -translate-x-1/2">
         <div className="h-full w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
       </div>
-
-      <MobileSetIndicator
-        isCompactMobile={scoreboard.isCompactMobile}
-        unlimitedSets={scoreboard.unlimitedSets}
-        setsWonA={scoreboard.setsWonA}
-        setsWonB={scoreboard.setsWonB}
-        currentSet={scoreboard.currentSet}
-      />
 
       <AnimatePresence>
         {!scoreboard.unlimitedSets &&

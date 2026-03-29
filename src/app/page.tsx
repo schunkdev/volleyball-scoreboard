@@ -15,7 +15,6 @@ import { TeamSide } from "@/lib/components/TeamSide";
 import { ScoreboardHeader } from "@/lib/components/scoreboard/ScoreboardHeader";
 import { DesktopBottomMenu } from "@/lib/components/scoreboard/DesktopBottomMenu";
 import { MobileFloatingMenu } from "@/lib/components/scoreboard/MobileFloatingMenu";
-import { MobileSetIndicator } from "@/lib/components/scoreboard/MobileSetIndicator";
 import { useScoreboardController } from "@/lib/hooks/useScoreboardController";
 
 export default function VolleyballScoreboard() {
@@ -105,6 +104,17 @@ export default function VolleyballScoreboard() {
           side="left"
           color={scoreboard.leftTeam.color}
           readOnly={scoreboard.readOnly}
+          gameMode={scoreboard.gameMode}
+          timeoutsUsed={
+            scoreboard.leftTeam.id === "A"
+              ? scoreboard.timeoutsUsedA
+              : scoreboard.timeoutsUsedB
+          }
+          onTimeoutsCycle={
+            scoreboard.readOnly || !scoreboard.gameMode || scoreboard.unlimitedSets
+              ? undefined
+              : () => scoreboard.handleTimeoutsCycle(scoreboard.leftTeam.id)
+          }
           onScoreChange={(d) => scoreboard.handleScoreChange(scoreboard.leftTeam.id, d)}
           onScoreDialogRequest={() => scoreboard.setScoreDialogOpen(scoreboard.leftTeam.id)}
           onNameLongPress={() => scoreboard.setNameDialogOpen(scoreboard.leftTeam.id)}
@@ -120,6 +130,17 @@ export default function VolleyballScoreboard() {
           side="right"
           color={scoreboard.rightTeam.color}
           readOnly={scoreboard.readOnly}
+          gameMode={scoreboard.gameMode}
+          timeoutsUsed={
+            scoreboard.rightTeam.id === "A"
+              ? scoreboard.timeoutsUsedA
+              : scoreboard.timeoutsUsedB
+          }
+          onTimeoutsCycle={
+            scoreboard.readOnly || !scoreboard.gameMode || scoreboard.unlimitedSets
+              ? undefined
+              : () => scoreboard.handleTimeoutsCycle(scoreboard.rightTeam.id)
+          }
           onScoreChange={(d) => scoreboard.handleScoreChange(scoreboard.rightTeam.id, d)}
           onScoreDialogRequest={() => scoreboard.setScoreDialogOpen(scoreboard.rightTeam.id)}
           onNameLongPress={() => scoreboard.setNameDialogOpen(scoreboard.rightTeam.id)}
@@ -165,14 +186,6 @@ export default function VolleyballScoreboard() {
           scoreboard.handleUndo();
           scoreboard.setMobileMenuOpen(false);
         }}
-      />
-
-      <MobileSetIndicator
-        isCompactMobile={scoreboard.isCompactMobile}
-        unlimitedSets={scoreboard.unlimitedSets}
-        setsWonA={scoreboard.setsWonA}
-        setsWonB={scoreboard.setsWonB}
-        currentSet={scoreboard.currentSet}
       />
 
       {/* Winner Announcement Overlay */}

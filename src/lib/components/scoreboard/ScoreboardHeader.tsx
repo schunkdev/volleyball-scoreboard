@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { LogOut, Maximize2, Minimize2, Radio, Settings, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizeLiveCode } from "@/lib/live/liveScoreboardState";
+import { SetScoreCenterStack } from "@/lib/components/scoreboard/SetScoreCenterStack";
 
 type Props = {
   isCompactMobile: boolean;
@@ -93,19 +94,14 @@ export function ScoreboardHeader({
       <div className={cn(isCompactMobile ? "w-20" : "w-48")} />
 
       {!isCompactMobile && (
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto gap-2">
-          <div className="flex items-center gap-4 rounded-full border border-white/5 bg-surface-container/40 px-8 py-2 backdrop-blur-md">
-            <div className="flex min-w-[60px] flex-col items-center">
-              <span className="font-headline text-xl font-black text-primary">
-                {!unlimitedSets && (setsWonA === 3 || setsWonB === 3)
-                  ? "FINAL"
-                  : currentSet}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-primary/90">
-                {setsWonA}-{setsWonB}
-              </span>
-            </div>
-          </div>
+        <div className="absolute left-1/2 top-14 -translate-x-1/2 flex flex-col items-center pointer-events-auto gap-2 sm:top-16">
+          <SetScoreCenterStack
+            currentSet={currentSet}
+            setsWonA={setsWonA}
+            setsWonB={setsWonB}
+            unlimitedSets={unlimitedSets}
+            size="header"
+          />
           {showLiveChip && (
             <div
               className={cn(
@@ -138,6 +134,23 @@ export function ScoreboardHeader({
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {isCompactMobile && (
+        <div
+          className={cn(
+            "pointer-events-none absolute left-1/2 z-[8] flex -translate-x-1/2 flex-col items-center",
+            showLiveChip ? "top-[3.25rem]" : "top-11",
+          )}
+        >
+          <SetScoreCenterStack
+            currentSet={currentSet}
+            setsWonA={setsWonA}
+            setsWonB={setsWonB}
+            unlimitedSets={unlimitedSets}
+            size="compact"
+          />
         </div>
       )}
 

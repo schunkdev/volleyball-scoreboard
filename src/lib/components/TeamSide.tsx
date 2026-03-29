@@ -16,6 +16,9 @@ export const TeamSide = ({
   onScoreDialogRequest,
   onNameLongPress,
   onSetWinIncrement,
+  onTimeoutsCycle,
+  gameMode = false,
+  timeoutsUsed = 0,
   unlimitedSets = false,
   compactLayout = false,
   readOnly = false,
@@ -30,6 +33,11 @@ export const TeamSide = ({
   onScoreDialogRequest: () => void;
   onNameLongPress: () => void;
   onSetWinIncrement: () => void;
+  /** Game mode: tap timeout dots to cycle 0 → 1 → 2 → 0 */
+  onTimeoutsCycle?: () => void;
+  gameMode?: boolean;
+  /** Timeouts used this set (0–2), game mode only */
+  timeoutsUsed?: number;
   unlimitedSets?: boolean;
   compactLayout?: boolean;
   readOnly?: boolean;
@@ -177,7 +185,7 @@ export const TeamSide = ({
       {/* Team Info Area - Separate Hitbox for Name Long Press */}
       <div
         className={cn(
-          "absolute flex flex-col items-center z-20 group/name",
+          "absolute flex flex-col items-center z-30 group/name",
           readOnly
             ? "pointer-events-none cursor-default"
             : "pointer-events-auto cursor-pointer",
@@ -207,7 +215,7 @@ export const TeamSide = ({
         >
           {name}
         </h2>
-        <div className={cn("flex gap-3", compactLayout ? "mt-2" : "mt-4")}>
+        <div className={cn("flex flex-col items-center", compactLayout ? "mt-2" : "mt-4")}>
           {unlimitedSets ? (
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
               <InfinityIcon
@@ -220,64 +228,111 @@ export const TeamSide = ({
                 {setsWon}
               </span>
             </div>
-          ) : (
-            [1, 2, 3].map((i) => (
-              <div
-                key={i}
+          ) : gameMode ? (
+            <div
+              className={cn(
+                "flex flex-col items-center gap-1.5",
+                !readOnly && onTimeoutsCycle && "cursor-pointer",
+              )}
+              role={readOnly || !onTimeoutsCycle ? undefined : "button"}
+              tabIndex={readOnly || !onTimeoutsCycle ? undefined : 0}
+              aria-label={
+                readOnly || !onTimeoutsCycle
+                  ? undefined
+                  : `Timeouts used: ${timeoutsUsed} of 2. Tap to cycle.`
+              }
+              onKeyDown={(e) => {
+                if (readOnly || !onTimeoutsCycle) return;
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onTimeoutsCycle();
+                }
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!readOnly && onTimeoutsCycle) onTimeoutsCycle();
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
+              <span
                 className={cn(
-                  "w-3 h-3 rounded-full transition-all duration-500 border",
-                  i <= setsWon
-                    ? color === "primary"
-                      ? "bg-primary border-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
-                      : "bg-secondary border-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
-                    : "bg-white/5 border-white/10",
+                  "font-bold uppercase tracking-widest text-on-surface-variant",
+                  compactLayout ? "text-[7px]" : "text-[8px]",
                 )}
-              />
-            ))
+              >
+                Timeouts
+              </span>
+              <div className="flex gap-3">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-3 w-3 rounded-full border transition-all duration-500",
+                      i <= timeoutsUsed
+                        ? color === "primary"
+                          ? "border-primary bg-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
+                          : "border-secondary bg-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
+                        : "border-white/10 bg-white/5",
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "h-3 w-3 rounded-full border transition-all duration-500",
+                    i <= setsWon
+                      ? color === "primary"
+                        ? "border-primary bg-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
+                        : "border-secondary bg-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
+                      : "border-white/10 bg-white/5",
+                  )}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>
 
-      {/* Score Area — tap / swipe / hold on the number (no separate +/- chrome) */}
+      {/* Score area: whole lower half is the hit target — tap +1, swipe ±1, hold rapid ±5 */}
       <div
         className={cn(
-          "flex flex-col items-center justify-center w-full flex-1 min-h-0",
-          readOnly ? "pointer-events-none" : "pointer-events-auto",
+          "relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-center",
+          readOnly ? "pointer-events-none" : "pointer-events-auto cursor-pointer",
           compactLayout ? "py-2" : "pt-[clamp(6rem,13vh,9.5rem)] pb-4",
         )}
+        onMouseMove={handleScoreMove}
+        onMouseUp={handleScoreEnd}
+        onMouseLeave={handleScoreEnd}
+        onTouchMove={handleScoreMove}
+        onTouchEnd={handleScoreEnd}
+        onMouseDown={handleScoreStart}
+        onTouchStart={handleScoreStart}
       >
-        <div
-          className={cn(
-            "relative z-20",
-            readOnly ? "cursor-default" : "cursor-pointer",
-          )}
-          onMouseMove={handleScoreMove}
-          onMouseUp={handleScoreEnd}
-          onMouseLeave={handleScoreEnd}
-          onTouchMove={handleScoreMove}
-          onTouchEnd={handleScoreEnd}
-          onMouseDown={handleScoreStart}
-          onTouchStart={handleScoreStart}
+        <motion.div
+          animate={{ y: isHolding ? (lastDelta > 0 ? -10 : 10) : 0 }}
+          className="flex flex-col items-center"
         >
-          <motion.div
-            animate={{ y: isHolding ? (lastDelta > 0 ? -10 : 10) : 0 }}
-            className="flex flex-col items-center"
+          <span
+            className={cn(
+              "font-headline font-black leading-none tracking-tighter transition-all duration-300",
+              compactLayout
+                ? "text-[clamp(11rem,32vw,14rem)]"
+                : "text-[clamp(15rem,52vh,36rem)]",
+              color === "primary"
+                ? "text-primary score-glow-primary"
+                : "text-secondary score-glow-secondary",
+            )}
           >
-            <span
-              className={cn(
-                "font-headline font-black leading-none tracking-tighter transition-all duration-300",
-                compactLayout
-                  ? "text-[clamp(11rem,32vw,14rem)]"
-                  : "text-[clamp(15rem,52vh,36rem)]",
-                color === "primary"
-                  ? "text-primary score-glow-primary"
-                  : "text-secondary score-glow-secondary",
-              )}
-            >
-              {score}
-            </span>
-          </motion.div>
-        </div>
+            {score}
+          </span>
+        </motion.div>
       </div>
 
       {/* Side Accent */}
