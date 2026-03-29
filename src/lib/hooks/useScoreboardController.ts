@@ -27,6 +27,7 @@ import {
   type LiveSessionListenerStatus,
 } from "@/lib/firebase/liveSessionService";
 import { isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { parseHexColor, teamAccentFromHex } from "@/lib/teamColors";
 
 const LIVE_PUBLISH_MS = 250;
 const STORAGE_CODE = "vb-live-code";
@@ -47,6 +48,8 @@ type PersistedSnapshotV1 = {
   gameMode: boolean;
   unlimitedSets: boolean;
   themeId: string;
+  teamColorA: string;
+  teamColorB: string;
 };
 
 function isCompletedSet(x: unknown): x is CompletedSet {
@@ -101,7 +104,27 @@ function parsePersistedSnapshot(raw: string | null): PersistedSnapshotV1 | null 
     }
     if (!o.history.every(isHistoryEntry)) return null;
     if (!o.completedSets.every(isCompletedSet)) return null;
-    return o as PersistedSnapshotV1;
+    const teamColorA =
+      typeof o.teamColorA === "string" ? parseHexColor(o.teamColorA) ?? "" : "";
+    const teamColorB =
+      typeof o.teamColorB === "string" ? parseHexColor(o.teamColorB) ?? "" : "";
+    return {
+      v: 1,
+      scoreA: o.scoreA as number,
+      scoreB: o.scoreB as number,
+      setsWonA: o.setsWonA as number,
+      setsWonB: o.setsWonB as number,
+      nameA: o.nameA as string,
+      nameB: o.nameB as string,
+      history: o.history as HistoryEntry[],
+      isSwapped: o.isSwapped as boolean,
+      completedSets: o.completedSets as CompletedSet[],
+      gameMode: o.gameMode as boolean,
+      unlimitedSets: o.unlimitedSets as boolean,
+      themeId: o.themeId as string,
+      teamColorA,
+      teamColorB,
+    };
   } catch {
     return null;
   }
@@ -137,6 +160,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
   const [gameMode, setGameMode] = useState(true);
   const [unlimitedSets, setUnlimitedSets] = useState(false);
   const [themeId, setThemeId] = useState("stadium-dark");
+  const [teamColorA, setTeamColorA] = useState("");
+  const [teamColorB, setTeamColorB] = useState("");
 
   const [liveCode, setLiveCode] = useState<string | null>(null);
   const [liveHostSessionId, setLiveHostSessionId] = useState<string | null>(null);
@@ -177,6 +202,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       setGameMode(full.gameMode);
       setUnlimitedSets(full.unlimitedSets);
       setThemeId(full.themeId);
+      setTeamColorA(full.teamColorA);
+      setTeamColorB(full.teamColorB);
     } else {
       const savedTheme = localStorage.getItem("vb-scoreboard-theme");
       if (savedTheme) setThemeId(savedTheme);
@@ -200,6 +227,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       gameMode,
       unlimitedSets,
       themeId,
+      teamColorA,
+      teamColorB,
     };
     try {
       localStorage.setItem(STORAGE_SCOREBOARD, JSON.stringify(snapshot));
@@ -221,6 +250,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     gameMode,
     unlimitedSets,
     themeId,
+    teamColorA,
+    teamColorB,
   ]);
 
   useEffect(() => {
@@ -230,10 +261,26 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       const cssVarName = `--theme-${key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}`;
       root.style.setProperty(cssVarName, value);
     });
+
+    const hexA = parseHexColor(teamColorA);
+    if (hexA) {
+      const a = teamAccentFromHex(hexA);
+      root.style.setProperty("--theme-primary", a.base);
+      root.style.setProperty("--theme-primary-muted", a.muted);
+      root.style.setProperty("--theme-primary-contrast", a.contrast);
+    }
+    const hexB = parseHexColor(teamColorB);
+    if (hexB) {
+      const b = teamAccentFromHex(hexB);
+      root.style.setProperty("--theme-secondary", b.base);
+      root.style.setProperty("--theme-secondary-muted", b.muted);
+      root.style.setProperty("--theme-secondary-contrast", b.contrast);
+    }
+
     if (!isSubscriberView) {
       localStorage.setItem("vb-scoreboard-theme", themeId);
     }
-  }, [themeId, isSubscriberView]);
+  }, [themeId, teamColorA, teamColorB, isSubscriberView]);
 
   useEffect(() => {
     const onFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -295,6 +342,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     gameMode: boolean;
     unlimitedSets: boolean;
     themeId: string;
+    teamColorA: string;
+    teamColorB: string;
   }) => {
     setScoreA(s.scoreA);
     setScoreB(s.scoreB);
@@ -307,6 +356,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setGameMode(s.gameMode);
     setUnlimitedSets(s.unlimitedSets);
     setThemeId(s.themeId);
+    setTeamColorA(s.teamColorA);
+    setTeamColorB(s.teamColorB);
   }, []);
 
   useEffect(() => {
@@ -443,6 +494,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       gameMode,
       unlimitedSets,
       themeId,
+      teamColorA,
+      teamColorB,
     });
 
     void apiPublishLiveSession({ code, hostSessionId: hid, state })
@@ -462,6 +515,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     gameMode,
     unlimitedSets,
     themeId,
+    teamColorA,
+    teamColorB,
   ]);
 
   const prevLiveHostingRef = useRef(false);
@@ -509,6 +564,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       gameMode,
       unlimitedSets,
       themeId,
+      teamColorA,
+      teamColorB,
     });
     const { code, hostSessionId } = await apiStartLiveSession(state);
     sessionStorage.setItem(STORAGE_CODE, code);
@@ -529,6 +586,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     gameMode,
     unlimitedSets,
     themeId,
+    teamColorA,
+    teamColorB,
   ]);
 
   const stopLiveSession = useCallback(async () => {
@@ -710,6 +769,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     gameMode,
     unlimitedSets,
     themeId,
+    teamColorA,
+    teamColorB,
     supportsFullscreen,
     currentSet,
     safeAreaStyle,
@@ -741,6 +802,8 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setGameMode,
     setUnlimitedSets,
     setThemeId,
+    setTeamColorA,
+    setTeamColorB,
     resetMatch,
     handleUndo,
     updateScore,

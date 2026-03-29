@@ -1,4 +1,5 @@
 import type { CompletedSet, LiveScoreboardState } from "@/lib/types/scoreboard";
+import { parseHexColor, parseTeamColorField } from "@/lib/teamColors";
 
 const MAX_NAME_LEN = 48;
 const MAX_SETS_EACH = 99;
@@ -120,6 +121,9 @@ export function parseLiveScoreboardState(raw: unknown): LiveScoreboardState | nu
   const completedSets = parseCompletedSetsFromRtdb(raw.completedSets);
   if (completedSets === null) return null;
 
+  const teamColorA = parseTeamColorField(raw.teamColorA);
+  const teamColorB = parseTeamColorField(raw.teamColorB);
+
   return {
     scoreA,
     scoreB,
@@ -132,7 +136,14 @@ export function parseLiveScoreboardState(raw: unknown): LiveScoreboardState | nu
     gameMode,
     unlimitedSets,
     themeId,
+    teamColorA,
+    teamColorB,
   };
+}
+
+function clampTeamColor(s: string): string {
+  const t = typeof s === "string" ? s.trim().slice(0, 7) : "";
+  return parseHexColor(t) ?? "";
 }
 
 export function buildLiveScoreboardStateFromController(input: {
@@ -147,6 +158,8 @@ export function buildLiveScoreboardStateFromController(input: {
   gameMode: boolean;
   unlimitedSets: boolean;
   themeId: string;
+  teamColorA: string;
+  teamColorB: string;
 }): LiveScoreboardState {
   const clampInt = (n: number, min: number, max: number) =>
     Math.min(max, Math.max(min, Math.floor(Number.isFinite(n) ? n : 0)));
@@ -178,6 +191,8 @@ export function buildLiveScoreboardStateFromController(input: {
       typeof input.themeId === "string" && input.themeId.length <= 64
         ? input.themeId
         : "stadium-dark",
+    teamColorA: clampTeamColor(input.teamColorA),
+    teamColorB: clampTeamColor(input.teamColorB),
   };
 }
 

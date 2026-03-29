@@ -268,11 +268,15 @@ export default function VolleyballScoreboard() {
               gameMode: scoreboard.gameMode,
               unlimitedSets: scoreboard.unlimitedSets,
               theme: scoreboard.themeId,
+              teamColorA: scoreboard.teamColorA,
+              teamColorB: scoreboard.teamColorB,
             }}
             onSave={(cfg) => {
               scoreboard.setGameMode(cfg.gameMode);
               scoreboard.setUnlimitedSets(cfg.unlimitedSets);
               scoreboard.setThemeId(cfg.theme);
+              scoreboard.setTeamColorA(cfg.teamColorA);
+              scoreboard.setTeamColorB(cfg.teamColorB);
             }}
           />
         )}

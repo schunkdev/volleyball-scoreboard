@@ -36,6 +36,9 @@ export type LiveScoreboardState = {
   gameMode: boolean;
   unlimitedSets: boolean;
   themeId: string;
+  /** Normalized `#rrggbb` or empty string = use theme default for that side */
+  teamColorA: string;
+  teamColorB: string;
 };
 
 export type LiveSessionPublicRecord = {

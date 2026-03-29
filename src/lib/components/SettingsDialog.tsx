@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { HexColorPicker } from "react-colorful";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Check,
@@ -10,10 +12,12 @@ import {
   Infinity as InfinityIcon,
   Palette,
   User,
+  X,
   Zap,
 } from "lucide-react";
 import { Toggle } from "./Toggle";
 import { themes } from "@/lib/themes";
+import { parseHexColor } from "@/lib/teamColors";
 import { cn } from "@/lib/utils";
 
 export const SettingsDialog = ({
@@ -24,13 +28,77 @@ export const SettingsDialog = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  config: { gameMode: boolean; unlimitedSets: boolean; theme: string };
-  onSave: (newConfig: { gameMode: boolean; unlimitedSets: boolean; theme: string }) => void;
+  config: {
+    gameMode: boolean;
+    unlimitedSets: boolean;
+    theme: string;
+    teamColorA: string;
+    teamColorB: string;
+  };
+  onSave: (newConfig: {
+    gameMode: boolean;
+    unlimitedSets: boolean;
+    theme: string;
+    teamColorA: string;
+    teamColorB: string;
+  }) => void;
 }) => {
   const [gameMode, setGameMode] = useState(config.gameMode);
   const [unlimitedSets, setUnlimitedSets] = useState(config.unlimitedSets);
   const [theme, setTheme] = useState(config.theme);
+  const [teamColorA, setTeamColorA] = useState(config.teamColorA);
+  const [teamColorB, setTeamColorB] = useState(config.teamColorB);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const [openTeamColorPicker, setOpenTeamColorPicker] = useState<"A" | "B" | null>(
+    null,
+  );
+  const teamColorPickerRef = useRef<HTMLDivElement | null>(null);
+  const teamColorPortalRef = useRef<HTMLDivElement | null>(null);
+  const [teamColorPickerFixedStyle, setTeamColorPickerFixedStyle] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+
+  /* Portaled picker uses fixed top/left from anchor rect (setState syncs layout → React). */
+  /* eslint-disable react-hooks/set-state-in-effect -- measure + cleanup clear fixed position state */
+  useLayoutEffect(() => {
+    if (openTeamColorPicker === null) {
+      setTeamColorPickerFixedStyle(null);
+      return;
+    }
+    const measure = () => {
+      const el = teamColorPickerRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const margin = 8;
+      const panelApproxWidth = 252;
+      let left = r.left;
+      const maxLeft = window.innerWidth - panelApproxWidth - margin;
+      left = Math.min(left, Math.max(margin, maxLeft));
+      setTeamColorPickerFixedStyle({ top: r.bottom + margin, left });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    document.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      document.removeEventListener("scroll", measure, true);
+      setTeamColorPickerFixedStyle(null);
+    };
+  }, [openTeamColorPicker]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (openTeamColorPicker === null) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (teamColorPickerRef.current?.contains(t)) return;
+      if (teamColorPortalRef.current?.contains(t)) return;
+      setOpenTeamColorPicker(null);
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [openTeamColorPicker]);
 
   const handleShowGuideAgain = () => {
     window.dispatchEvent(new Event("vb-scoreboard-show-quickguide"));
@@ -47,7 +115,14 @@ export const SettingsDialog = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="pointer-events-auto absolute inset-0 z-[100] flex cursor-pointer items-center justify-center bg-black/60 p-3 backdrop-blur-md md:p-6"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return;
+        if (openTeamColorPicker !== null) {
+          setOpenTeamColorPicker(null);
+          return;
+        }
+        onClose();
+      }}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -138,6 +213,93 @@ export const SettingsDialog = ({
               )}
             </AnimatePresence>
           </div>
+
+          <div className="space-y-3 rounded-2xl border border-white/5 bg-white/5 p-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface">
+              Team colors
+            </p>
+            <p className="text-[10px] leading-relaxed text-on-surface-variant">
+              Optional hex for each side. Leave empty to use the theme defaults. Tap the
+              swatch to open the picker.
+            </p>
+            {(
+              [
+                {
+                  id: "A" as const,
+                  label: "Team A",
+                  value: teamColorA,
+                  onChange: setTeamColorA,
+                  fallback: currentTheme.colors.primary,
+                },
+                {
+                  id: "B" as const,
+                  label: "Team B",
+                  value: teamColorB,
+                  onChange: setTeamColorB,
+                  fallback: currentTheme.colors.secondary,
+                },
+              ] as const
+            ).map((row) => {
+              const parsed = parseHexColor(row.value);
+              const isPickerOpen = openTeamColorPicker === row.id;
+              const hasCustomColor = row.value.trim() !== "";
+              return (
+                <div
+                  key={row.id}
+                  className="relative flex items-center gap-3"
+                >
+                  <span className="w-16 shrink-0 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                    {row.label}
+                  </span>
+                  <input
+                    type="text"
+                    value={row.value}
+                    onChange={(e) => row.onChange(e.target.value)}
+                    placeholder="#rrggbb"
+                    spellCheck={false}
+                    autoComplete="off"
+                    className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary/40"
+                  />
+                  <div
+                    ref={isPickerOpen ? teamColorPickerRef : undefined}
+                    className="relative flex shrink-0 items-center gap-2"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenTeamColorPicker((t) => (t === row.id ? null : row.id))
+                      }
+                      className={cn(
+                        "h-10 w-10 rounded-xl border shadow-inner transition-[box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                        isPickerOpen
+                          ? "border-primary/60 ring-2 ring-primary/30"
+                          : "border-white/15",
+                      )}
+                      style={{ backgroundColor: parsed ?? row.fallback }}
+                      title={parsed ? "Open color picker" : "Theme default — open picker"}
+                      aria-expanded={isPickerOpen}
+                      aria-haspopup="dialog"
+                      aria-label={`${row.label} color preview, open picker`}
+                    />
+                    {hasCustomColor && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          row.onChange("");
+                          setOpenTeamColorPicker((t) => (t === row.id ? null : t));
+                        }}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-500/35 bg-red-950/55 text-red-400 transition-colors hover:border-red-400/50 hover:bg-red-950/80 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
+                        title="Reset to theme default"
+                        aria-label={`Clear ${row.label} custom color`}
+                      >
+                        <X size={20} strokeWidth={2.25} aria-hidden />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="mb-5 flex w-full items-center justify-between gap-3 md:mb-6">
@@ -193,7 +355,13 @@ export const SettingsDialog = ({
           <button
             type="button"
             onClick={() => {
-              onSave({ gameMode, unlimitedSets, theme });
+              onSave({
+                gameMode,
+                unlimitedSets,
+                theme,
+                teamColorA: parseHexColor(teamColorA) ?? "",
+                teamColorB: parseHexColor(teamColorB) ?? "",
+              });
               onClose();
             }}
             className="flex-1 cursor-pointer rounded-2xl bg-primary py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-primary-contrast shadow-[0_0_30px_var(--theme-primary-muted)] transition-all active:scale-95 md:py-5"
@@ -202,6 +370,41 @@ export const SettingsDialog = ({
           </button>
         </div>
       </motion.div>
+      {typeof document !== "undefined" &&
+        openTeamColorPicker !== null &&
+        teamColorPickerFixedStyle !== null &&
+        createPortal(
+          <div
+            ref={teamColorPortalRef}
+            className="pointer-events-auto z-[200] rounded-2xl border border-white/10 bg-surface-variant p-3 shadow-xl"
+            style={{
+              position: "fixed",
+              top: teamColorPickerFixedStyle.top,
+              left: teamColorPickerFixedStyle.left,
+            }}
+            role="dialog"
+            aria-label={
+              openTeamColorPicker === "A"
+                ? "Team A color picker"
+                : "Team B color picker"
+            }
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <HexColorPicker
+              className="settings-team-hex-picker"
+              color={
+                openTeamColorPicker === "A"
+                  ? parseHexColor(teamColorA) ?? currentTheme.colors.primary
+                  : parseHexColor(teamColorB) ?? currentTheme.colors.secondary
+              }
+              onChange={
+                openTeamColorPicker === "A" ? setTeamColorA : setTeamColorB
+              }
+            />
+          </div>,
+          document.body,
+        )}
     </motion.div>
   );
 };

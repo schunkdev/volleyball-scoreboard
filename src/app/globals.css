@@ -79,6 +79,19 @@
   }
 }
 
+/* react-colorful — compact picker in settings (team colors) */
+.settings-team-hex-picker.react-colorful {
+  width: 220px;
+  height: 140px;
+}
+.settings-team-hex-picker .react-colorful__saturation {
+  border-radius: 10px;
+}
+.settings-team-hex-picker .react-colorful__hue {
+  height: 14px;
+  border-radius: 7px;
+}
+
 body {
   font-family: var(--font-lexend), sans-serif;
 }
