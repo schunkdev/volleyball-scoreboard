@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Plus, Minus, Infinity as InfinityIcon } from 'lucide-react';
+import { Infinity as InfinityIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const TeamSide = ({ 
@@ -217,28 +217,12 @@ export const TeamSide = ({
         </div>
       </div>
 
-      {/* Score Area - Main Interaction */}
+      {/* Score Area — tap / swipe / hold on the number (no separate +/- chrome) */}
       <div className={cn(
-        "flex flex-col items-center justify-center w-full h-full",
+        "flex flex-col items-center justify-center w-full flex-1 min-h-0",
         readOnly ? "pointer-events-none" : "pointer-events-auto",
-        compactLayout ? "pt-8 pb-2" : "pt-[clamp(11rem,24vh,15rem)] pb-6",
+        compactLayout ? "py-2" : "pt-[clamp(6rem,13vh,9.5rem)] pb-4",
       )}>
-        {/* Plus Zone */}
-        {!compactLayout && !readOnly && (
-          <button 
-            onClick={() => onScoreChange(1)}
-            className={cn(
-              "z-30 p-4 mt-2 transition-all active:scale-90 hover:opacity-100 opacity-20 shrink-0",
-              color === 'primary' ? "text-primary" : "text-secondary"
-            )}
-          >
-            <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-              <Plus size={44} strokeWidth={3} />
-            </motion.div>
-          </button>
-        )}
-
-        {/* Number Zone */}
         <div 
           className={cn("relative z-20", readOnly ? "cursor-default" : "cursor-pointer")}
           onMouseMove={handleScoreMove}
@@ -255,28 +239,15 @@ export const TeamSide = ({
           >
             <span className={cn(
               "font-headline font-black leading-none tracking-tighter transition-all duration-300",
-              compactLayout ? "text-[10rem]" : "text-[clamp(12rem,42vh,24rem)]",
+              compactLayout
+                ? "text-[clamp(11rem,32vw,14rem)]"
+                : "text-[clamp(15rem,52vh,36rem)]",
               color === 'primary' ? "text-primary score-glow-primary" : "text-secondary score-glow-secondary"
             )}>
               {score}
             </span>
           </motion.div>
         </div>
-
-        {/* Minus Zone */}
-        {!compactLayout && !readOnly && (
-          <button 
-            onClick={() => onScoreChange(-1)}
-            className={cn(
-              "z-30 p-4 transition-all active:scale-90 hover:opacity-100 opacity-20",
-              color === 'primary' ? "text-primary" : "text-secondary"
-            )}
-          >
-            <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-              <Minus size={44} strokeWidth={3} />
-            </motion.div>
-          </button>
-        )}
       </div>
 
       {/* Side Accent */}
