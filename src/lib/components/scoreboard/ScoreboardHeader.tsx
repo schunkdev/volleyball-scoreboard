@@ -127,11 +127,15 @@ export function ScoreboardHeader({
               </span>
               <span className="text-white/50">·</span>
               <span className="font-mono tracking-widest">{liveCode}</span>
-              <span className="text-white/50">·</span>
-              <span className="flex items-center gap-1 text-on-surface">
-                <Users size={12} />
-                {liveViewerCount}
-              </span>
+              {liveMode === "host" && (
+                <>
+                  <span className="text-white/50">·</span>
+                  <span className="flex items-center gap-1 text-on-surface">
+                    <Users size={12} />
+                    {liveViewerCount}
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -147,8 +151,12 @@ export function ScoreboardHeader({
             )}
           />
           <span className="font-mono">{liveCode}</span>
-          <Users size={10} />
-          {liveViewerCount}
+          {liveMode === "host" && (
+            <>
+              <Users size={10} />
+              {liveViewerCount}
+            </>
+          )}
         </div>
       )}
 

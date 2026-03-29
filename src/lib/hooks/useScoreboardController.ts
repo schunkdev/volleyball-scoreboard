@@ -312,31 +312,59 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
   useEffect(() => {
     if (!isSubscriberView || !subscriberCode) return;
 
-    const unsubSession = subscribeToLiveSession(subscriberCode, ({ status, record }) => {
-      setLiveSessionStatus(status);
-      if (record) {
-        applyRemoteLiveState(record.state);
-        setSubscriberHydrated(true);
-      } else if (status !== "loading") {
-        setSubscriberHydrated(true);
-      }
-    });
-
-    const unsubConn = subscribeDatabaseConnection(setFirebaseOnline);
-
-    let cleanupWatcher: (() => void) | undefined;
     const watcherId = createWatcherId();
-    void registerWatcherPresence(subscriberCode, watcherId).then((fn) => {
-      cleanupWatcher = fn;
-    });
+    let unsubSession: (() => void) | undefined;
+    let unsubConn: (() => void) | undefined;
+    let cleanupWatcher: (() => void) | undefined;
+    let detachGen = 0;
 
-    const unsubWatchers = subscribeToWatcherCount(subscriberCode, setLiveViewerCount);
+    const detach = () => {
+      detachGen++;
+      unsubSession?.();
+      unsubConn?.();
+      cleanupWatcher?.();
+      unsubSession = undefined;
+      unsubConn = undefined;
+      cleanupWatcher = undefined;
+    };
+
+    const attach = () => {
+      const gen = detachGen;
+      unsubSession = subscribeToLiveSession(subscriberCode, ({ status, record }) => {
+        setLiveSessionStatus(status);
+        if (record) {
+          applyRemoteLiveState(record.state);
+          setSubscriberHydrated(true);
+        } else if (status !== "loading") {
+          setSubscriberHydrated(true);
+        }
+      });
+      unsubConn = subscribeDatabaseConnection(setFirebaseOnline);
+      void registerWatcherPresence(subscriberCode, watcherId).then((fn) => {
+        if (gen !== detachGen) {
+          fn();
+          return;
+        }
+        cleanupWatcher = fn;
+      });
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        attach();
+      } else {
+        detach();
+      }
+    };
+
+    if (document.visibilityState === "visible") {
+      attach();
+    }
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      unsubSession();
-      unsubConn();
-      unsubWatchers();
-      cleanupWatcher?.();
+      document.removeEventListener("visibilitychange", onVisibility);
+      detach();
     };
   }, [isSubscriberView, subscriberCode, applyRemoteLiveState]);
 
@@ -364,11 +392,37 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
   useEffect(() => {
     if (!isLiveHosting || !liveCode) return;
 
-    const unsub = subscribeToWatcherCount(liveCode, setLiveViewerCount);
-    const unsubConn = subscribeDatabaseConnection(setFirebaseOnline);
+    let unsubWatchers: (() => void) | undefined;
+    let unsubConn: (() => void) | undefined;
+
+    const detach = () => {
+      unsubWatchers?.();
+      unsubConn?.();
+      unsubWatchers = undefined;
+      unsubConn = undefined;
+    };
+
+    const attach = () => {
+      unsubWatchers = subscribeToWatcherCount(liveCode, setLiveViewerCount);
+      unsubConn = subscribeDatabaseConnection(setFirebaseOnline);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        attach();
+      } else {
+        detach();
+      }
+    };
+
+    if (document.visibilityState === "visible") {
+      attach();
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
-      unsub();
-      unsubConn();
+      document.removeEventListener("visibilitychange", onVisibility);
+      detach();
     };
   }, [isLiveHosting, liveCode]);
 
