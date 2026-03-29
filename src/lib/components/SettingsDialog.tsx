@@ -2,7 +2,15 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Check, ChevronDown, Infinity as InfinityIcon, Palette, Zap } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Github,
+  Infinity as InfinityIcon,
+  Palette,
+  User,
+  Zap,
+} from "lucide-react";
 import { Toggle } from "./Toggle";
 import { themes } from "@/lib/themes";
 import { cn } from "@/lib/utils";
@@ -131,14 +139,36 @@ export const SettingsDialog = ({
           </div>
         </div>
 
-        <div className="mb-4 w-full md:mb-5">
+        <div className="mb-5 flex w-full items-center justify-between gap-3 md:mb-6">
           <button
             type="button"
             onClick={handleShowGuideAgain}
-            className="cursor-pointer text-xs uppercase tracking-[0.2em] text-on-surface-variant underline underline-offset-4 transition-colors hover:text-primary"
+            className="min-w-0 cursor-pointer text-left text-xs uppercase tracking-[0.2em] text-on-surface-variant underline underline-offset-4 transition-colors hover:text-primary"
           >
             Show quick guide again
           </button>
+          <div className="flex shrink-0 gap-2">
+            <a
+              href="https://github.com/schunkdev/volleyball-scoreboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Repository"
+              aria-label="Repository"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-on-surface-variant transition-colors hover:border-white/15 hover:bg-white/10 hover:text-primary"
+            >
+              <Github size={20} strokeWidth={2} />
+            </a>
+            <a
+              href="https://schunk.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Developer"
+              aria-label="Developer"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-on-surface-variant transition-colors hover:border-white/15 hover:bg-white/10 hover:text-primary"
+            >
+              <User size={20} strokeWidth={2} />
+            </a>
+          </div>
         </div>
 
         <div className="flex w-full gap-3 md:gap-4">
