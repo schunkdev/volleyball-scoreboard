@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useRef } from 'react';
-import { motion } from 'motion/react';
-import { Infinity as InfinityIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useState, useRef } from "react";
+import { motion } from "motion/react";
+import { Infinity as InfinityIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export const TeamSide = ({ 
-  name, 
-  score, 
+export const TeamSide = ({
+  name,
+  score,
   setsWon,
-  label, 
+  label,
   side,
-  color, 
+  color,
   onScoreChange,
   onScoreDialogRequest,
   onNameLongPress,
@@ -19,13 +19,13 @@ export const TeamSide = ({
   unlimitedSets = false,
   compactLayout = false,
   readOnly = false,
-}: { 
-  name: string; 
-  score: number; 
+}: {
+  name: string;
+  score: number;
   setsWon: number;
-  label: string; 
-  side: 'left' | 'right';
-  color: 'primary' | 'secondary';
+  label: string;
+  side: "left" | "right";
+  color: "primary" | "secondary";
   onScoreChange: (delta: number) => void;
   onScoreDialogRequest: () => void;
   onNameLongPress: () => void;
@@ -93,29 +93,30 @@ export const TeamSide = ({
       return;
     }
 
-    const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const y = "touches" in e ? e.touches[0].clientY : e.clientY;
     startYRef.current = y;
     hasMovedRef.current = false;
-    
+
     // Long press on score opens dialog
     swipeLongPressTimerRef.current = setTimeout(() => {
       onScoreDialogRequest();
-      startYRef.current = null; 
+      startYRef.current = null;
     }, 600);
   };
 
   const handleScoreEnd = (e: React.TouchEvent | React.MouseEvent) => {
     if (readOnly) return;
-    if (!('changedTouches' in e) && Date.now() < ignoreMouseUntilRef.current) {
+    if (!("changedTouches" in e) && Date.now() < ignoreMouseUntilRef.current) {
       return;
     }
 
-    if (swipeLongPressTimerRef.current) clearTimeout(swipeLongPressTimerRef.current);
-    
+    if (swipeLongPressTimerRef.current)
+      clearTimeout(swipeLongPressTimerRef.current);
+
     if (startYRef.current !== null) {
-      const y = 'changedTouches' in e ? e.changedTouches[0].clientY : e.clientY;
+      const y = "changedTouches" in e ? e.changedTouches[0].clientY : e.clientY;
       const diff = startYRef.current - y;
-      
+
       if (Math.abs(diff) > 30) {
         // Swipe
         const delta = diff > 0 ? 1 : -1;
@@ -125,20 +126,20 @@ export const TeamSide = ({
         onScoreChange(1);
       }
     }
-    
+
     stopHold();
     startYRef.current = null;
   };
 
   const handleScoreMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (readOnly) return;
-    if (!('touches' in e) && Date.now() < ignoreMouseUntilRef.current) {
+    if (!("touches" in e) && Date.now() < ignoreMouseUntilRef.current) {
       return;
     }
 
     if (startYRef.current === null) return;
-    
-    const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    const y = "touches" in e ? e.touches[0].clientY : e.clientY;
     const diff = startYRef.current - y;
 
     if (Math.abs(diff) > 10) {
@@ -159,23 +160,27 @@ export const TeamSide = ({
   };
 
   return (
-    <div 
+    <div
       className={cn(
         "relative w-1/2 h-full flex flex-col items-center justify-center overflow-visible select-none touch-none transition-colors duration-700",
-        color === 'primary' ? "bg-bg-secondary" : "bg-bg"
+        color === "primary" ? "bg-bg-secondary" : "bg-bg",
       )}
     >
       {/* Background Glow */}
-      <div className={cn(
-        "absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-transparent",
-        color === 'primary' ? "from-primary" : "from-secondary"
-      )} />
+      <div
+        className={cn(
+          "absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-transparent",
+          color === "primary" ? "from-primary" : "from-secondary",
+        )}
+      />
 
       {/* Team Info Area - Separate Hitbox for Name Long Press */}
       <div
         className={cn(
           "absolute flex flex-col items-center z-20 group/name",
-          readOnly ? "pointer-events-none cursor-default" : "pointer-events-auto cursor-pointer",
+          readOnly
+            ? "pointer-events-none cursor-default"
+            : "pointer-events-auto cursor-pointer",
           compactLayout ? "top-3" : "top-20",
         )}
         onMouseDown={handleNameStart}
@@ -185,46 +190,67 @@ export const TeamSide = ({
         onTouchEnd={handleNameEnd}
         onClick={handleNameClick}
       >
-        <span className={cn(
-          "font-body tracking-[0.3em] uppercase font-bold",
-          compactLayout ? "text-[8px] mb-1.5" : "text-[10px] mb-2",
-          color === 'primary' ? "text-primary" : "text-secondary"
-        )}>
+        <span
+          className={cn(
+            "font-body tracking-[0.3em] uppercase font-bold",
+            compactLayout ? "text-[8px] mb-1.5" : "text-[10px] mb-2",
+            color === "primary" ? "text-primary" : "text-secondary",
+          )}
+        >
           {label}
         </span>
-        <h2 className={cn(
-          "font-headline font-black tracking-tight uppercase transition-transform group-active/name:scale-95 text-on-surface",
-          compactLayout ? "text-xl max-w-[42vw] truncate" : "text-4xl",
-        )}>
+        <h2
+          className={cn(
+            "font-headline font-black tracking-tight uppercase transition-transform group-active/name:scale-95 text-on-surface",
+            compactLayout ? "text-xl max-w-[42vw] truncate" : "text-4xl",
+          )}
+        >
           {name}
         </h2>
         <div className={cn("flex gap-3", compactLayout ? "mt-2" : "mt-4")}>
           {unlimitedSets ? (
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-              <InfinityIcon size={12} className={color === 'primary' ? "text-primary" : "text-secondary"} />
-              <span className="text-[10px] font-bold text-on-surface">{setsWon}</span>
+              <InfinityIcon
+                size={12}
+                className={
+                  color === "primary" ? "text-primary" : "text-secondary"
+                }
+              />
+              <span className="text-[10px] font-bold text-on-surface">
+                {setsWon}
+              </span>
             </div>
           ) : (
-            [1, 2, 3].map(i => (
-              <div key={i} className={cn(
-                "w-3 h-3 rounded-full transition-all duration-500 border",
-                i <= setsWon 
-                  ? (color === 'primary' ? "bg-primary border-primary shadow-[0_0_15px_var(--theme-primary-muted)]" : "bg-secondary border-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]") 
-                  : "bg-white/5 border-white/10"
-              )} />
+            [1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={cn(
+                  "w-3 h-3 rounded-full transition-all duration-500 border",
+                  i <= setsWon
+                    ? color === "primary"
+                      ? "bg-primary border-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
+                      : "bg-secondary border-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
+                    : "bg-white/5 border-white/10",
+                )}
+              />
             ))
           )}
         </div>
       </div>
 
       {/* Score Area — tap / swipe / hold on the number (no separate +/- chrome) */}
-      <div className={cn(
-        "flex flex-col items-center justify-center w-full flex-1 min-h-0",
-        readOnly ? "pointer-events-none" : "pointer-events-auto",
-        compactLayout ? "py-2" : "pt-[clamp(6rem,13vh,9.5rem)] pb-4",
-      )}>
-        <div 
-          className={cn("relative z-20", readOnly ? "cursor-default" : "cursor-pointer")}
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center w-full flex-1 min-h-0",
+          readOnly ? "pointer-events-none" : "pointer-events-auto",
+          compactLayout ? "py-2" : "pt-[clamp(6rem,13vh,9.5rem)] pb-4",
+        )}
+      >
+        <div
+          className={cn(
+            "relative z-20",
+            readOnly ? "cursor-default" : "cursor-pointer",
+          )}
           onMouseMove={handleScoreMove}
           onMouseUp={handleScoreEnd}
           onMouseLeave={handleScoreEnd}
@@ -233,17 +259,21 @@ export const TeamSide = ({
           onMouseDown={handleScoreStart}
           onTouchStart={handleScoreStart}
         >
-          <motion.div 
+          <motion.div
             animate={{ y: isHolding ? (lastDelta > 0 ? -10 : 10) : 0 }}
             className="flex flex-col items-center"
           >
-            <span className={cn(
-              "font-headline font-black leading-none tracking-tighter transition-all duration-300",
-              compactLayout
-                ? "text-[clamp(11rem,32vw,14rem)]"
-                : "text-[clamp(15rem,52vh,36rem)]",
-              color === 'primary' ? "text-primary score-glow-primary" : "text-secondary score-glow-secondary"
-            )}>
+            <span
+              className={cn(
+                "font-headline font-black leading-none tracking-tighter transition-all duration-300",
+                compactLayout
+                  ? "text-[clamp(11rem,32vw,14rem)]"
+                  : "text-[clamp(15rem,52vh,36rem)]",
+                color === "primary"
+                  ? "text-primary score-glow-primary"
+                  : "text-secondary score-glow-secondary",
+              )}
+            >
               {score}
             </span>
           </motion.div>
@@ -251,13 +281,15 @@ export const TeamSide = ({
       </div>
 
       {/* Side Accent */}
-      <div className={cn(
-        "absolute top-1/4 bottom-1/4 w-1.5 rounded-full blur-[1px]",
-        side === 'left' ? "left-0" : "right-0",
-        color === 'primary'
-          ? "bg-primary shadow-[0_0_20px_var(--theme-primary-muted)]"
-          : "bg-secondary shadow-[0_0_20px_var(--theme-secondary-muted)]"
-      )} />
+      <div
+        className={cn(
+          "absolute top-1/4 bottom-1/4 w-1.5 rounded-full blur-[1px]",
+          side === "left" ? "left-0" : "right-0",
+          color === "primary"
+            ? "bg-primary shadow-[0_0_20px_var(--theme-primary-muted)]"
+            : "bg-secondary shadow-[0_0_20px_var(--theme-secondary-muted)]",
+        )}
+      />
     </div>
   );
 };

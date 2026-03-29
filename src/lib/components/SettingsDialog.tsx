@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Check,
   ChevronDown,
+  Coffee,
   Github,
   Infinity as InfinityIcon,
   Palette,
@@ -167,6 +168,16 @@ export const SettingsDialog = ({
               className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-on-surface-variant transition-colors hover:border-white/15 hover:bg-white/10 hover:text-primary"
             >
               <User size={20} strokeWidth={2} />
+            </a>
+            <a
+              href="https://www.buymeacoffee.com/nikolaischunk"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Buy me a coffee"
+              aria-label="Buy me a coffee"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-on-surface-variant transition-colors hover:border-white/15 hover:bg-white/10 hover:text-primary"
+            >
+              <Coffee size={20} strokeWidth={2} />
             </a>
           </div>
         </div>
