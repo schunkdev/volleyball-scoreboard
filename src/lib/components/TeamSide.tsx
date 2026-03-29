@@ -303,9 +303,9 @@ export const TeamSide = ({
       {/* Score area: whole lower half is the hit target — tap +1, swipe ±1, hold rapid ±5 */}
       <div
         className={cn(
-          "relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-center",
+          "relative z-10 flex min-h-0 w-full flex-1 flex-col items-center",
+          compactLayout ? "justify-start pt-[6.75rem] pb-4" : "justify-center pt-[clamp(6rem,13vh,9.5rem)] pb-4",
           readOnly ? "pointer-events-none" : "pointer-events-auto cursor-pointer",
-          compactLayout ? "py-2" : "pt-[clamp(6rem,13vh,9.5rem)] pb-4",
         )}
         onMouseMove={handleScoreMove}
         onMouseUp={handleScoreEnd}
@@ -323,7 +323,7 @@ export const TeamSide = ({
             className={cn(
               "font-headline font-black leading-none tracking-tighter transition-all duration-300",
               compactLayout
-                ? "text-[clamp(11rem,32vw,14rem)]"
+                ? "text-[clamp(4.25rem,min(21vw,44vh),8.5rem)]"
                 : "text-[clamp(15rem,52vh,36rem)]",
               color === "primary"
                 ? "text-primary score-glow-primary"
