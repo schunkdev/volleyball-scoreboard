@@ -49,9 +49,10 @@ export const SettingsDialog = ({
   const [teamColorA, setTeamColorA] = useState(config.teamColorA);
   const [teamColorB, setTeamColorB] = useState(config.teamColorB);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
-  const [openTeamColorPicker, setOpenTeamColorPicker] = useState<"A" | "B" | null>(
-    null,
-  );
+  const [showTeamColors, setShowTeamColors] = useState(false);
+  const [openTeamColorPicker, setOpenTeamColorPicker] = useState<
+    "A" | "B" | null
+  >(null);
   const teamColorPickerRef = useRef<HTMLDivElement | null>(null);
   const teamColorPortalRef = useRef<HTMLDivElement | null>(null);
   const [teamColorPickerFixedStyle, setTeamColorPickerFixedStyle] = useState<{
@@ -97,7 +98,8 @@ export const SettingsDialog = ({
       setOpenTeamColorPicker(null);
     };
     document.addEventListener("pointerdown", onPointerDown, true);
-    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+    return () =>
+      document.removeEventListener("pointerdown", onPointerDown, true);
   }, [openTeamColorPicker]);
 
   const handleShowGuideAgain = () => {
@@ -174,7 +176,10 @@ export const SettingsDialog = ({
                 {currentTheme.name}
                 <ChevronDown
                   size={14}
-                  className={cn("transition-transform", showThemeSelector && "rotate-180")}
+                  className={cn(
+                    "transition-transform",
+                    showThemeSelector && "rotate-180",
+                  )}
                 />
               </div>
             </div>
@@ -203,7 +208,10 @@ export const SettingsDialog = ({
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: t.colors.primary }} />
+                        <div
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: t.colors.primary }}
+                        />
                         {t.name}
                       </div>
                       {theme === t.id && <Check size={14} />}
@@ -215,90 +223,133 @@ export const SettingsDialog = ({
           </div>
 
           <div className="space-y-3 rounded-2xl border border-white/5 bg-white/5 p-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-on-surface">
-              Team colors
-            </p>
-            <p className="text-[10px] leading-relaxed text-on-surface-variant">
-              Optional hex for each side. Leave empty to use the theme defaults. Tap the
-              swatch to open the picker.
-            </p>
-            {(
-              [
-                {
-                  id: "A" as const,
-                  label: "Team A",
-                  value: teamColorA,
-                  onChange: setTeamColorA,
-                  fallback: currentTheme.colors.primary,
-                },
-                {
-                  id: "B" as const,
-                  label: "Team B",
-                  value: teamColorB,
-                  onChange: setTeamColorB,
-                  fallback: currentTheme.colors.secondary,
-                },
-              ] as const
-            ).map((row) => {
-              const parsed = parseHexColor(row.value);
-              const isPickerOpen = openTeamColorPicker === row.id;
-              const hasCustomColor = row.value.trim() !== "";
-              return (
-                <div
-                  key={row.id}
-                  className="relative flex items-center gap-3"
+            <button
+              type="button"
+              onClick={() => {
+                setShowTeamColors((o) => {
+                  const next = !o;
+                  if (!next) setOpenTeamColorPicker(null);
+                  return next;
+                });
+              }}
+              className="flex w-full items-center justify-between gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-white/5"
+              aria-expanded={showTeamColors}
+            >
+              <span className="text-xs font-bold uppercase tracking-widest text-on-surface">
+                Custom team colors
+              </span>
+              <ChevronDown
+                size={14}
+                className={cn(
+                  "shrink-0 text-on-surface-variant transition-transform",
+                  showTeamColors && "rotate-180",
+                )}
+                aria-hidden
+              />
+            </button>
+
+            <AnimatePresence initial={false}>
+              {showTeamColors && (
+                <motion.div
+                  key="team-colors"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-3"
                 >
-                  <span className="w-16 shrink-0 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                    {row.label}
-                  </span>
-                  <input
-                    type="text"
-                    value={row.value}
-                    onChange={(e) => row.onChange(e.target.value)}
-                    placeholder="#rrggbb"
-                    spellCheck={false}
-                    autoComplete="off"
-                    className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary/40"
-                  />
-                  <div
-                    ref={isPickerOpen ? teamColorPickerRef : undefined}
-                    className="relative flex shrink-0 items-center gap-2"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenTeamColorPicker((t) => (t === row.id ? null : row.id))
-                      }
-                      className={cn(
-                        "h-10 w-10 rounded-xl border shadow-inner transition-[box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-                        isPickerOpen
-                          ? "border-primary/60 ring-2 ring-primary/30"
-                          : "border-white/15",
-                      )}
-                      style={{ backgroundColor: parsed ?? row.fallback }}
-                      title={parsed ? "Open color picker" : "Theme default — open picker"}
-                      aria-expanded={isPickerOpen}
-                      aria-haspopup="dialog"
-                      aria-label={`${row.label} color preview, open picker`}
-                    />
-                    {hasCustomColor && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          row.onChange("");
-                          setOpenTeamColorPicker((t) => (t === row.id ? null : t));
-                        }}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-500/35 bg-red-950/55 text-red-400 transition-colors hover:border-red-400/50 hover:bg-red-950/80 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
-                        title="Reset to theme default"
-                        aria-label={`Clear ${row.label} custom color`}
+                  <p className="text-[10px] leading-relaxed text-on-surface-variant">
+                    Optional hex for each side. Leave empty to use the theme
+                    defaults. Tap the swatch to open the picker.
+                  </p>
+                  {(
+                    [
+                      {
+                        id: "A" as const,
+                        label: "Team A",
+                        value: teamColorA,
+                        onChange: setTeamColorA,
+                        fallback: currentTheme.colors.primary,
+                      },
+                      {
+                        id: "B" as const,
+                        label: "Team B",
+                        value: teamColorB,
+                        onChange: setTeamColorB,
+                        fallback: currentTheme.colors.secondary,
+                      },
+                    ] as const
+                  ).map((row) => {
+                    const parsed = parseHexColor(row.value);
+                    const isPickerOpen = openTeamColorPicker === row.id;
+                    const hasCustomColor = row.value.trim() !== "";
+                    return (
+                      <div
+                        key={row.id}
+                        className="relative flex items-center gap-3"
                       >
-                        <X size={20} strokeWidth={2.25} aria-hidden />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                        <span className="w-16 shrink-0 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                          {row.label}
+                        </span>
+                        <input
+                          type="text"
+                          value={row.value}
+                          onChange={(e) => row.onChange(e.target.value)}
+                          placeholder="#rrggbb"
+                          spellCheck={false}
+                          autoComplete="off"
+                          className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary/40"
+                        />
+                        <div
+                          ref={isPickerOpen ? teamColorPickerRef : undefined}
+                          className="relative flex shrink-0 items-center gap-2"
+                        >
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenTeamColorPicker((t) =>
+                                t === row.id ? null : row.id,
+                              )
+                            }
+                            className={cn(
+                              "h-10 w-10 rounded-xl border shadow-inner transition-[box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                              isPickerOpen
+                                ? "border-primary/60 ring-2 ring-primary/30"
+                                : "border-white/15",
+                            )}
+                            style={{ backgroundColor: parsed ?? row.fallback }}
+                            title={
+                              parsed
+                                ? "Open color picker"
+                                : "Theme default — open picker"
+                            }
+                            aria-expanded={isPickerOpen}
+                            aria-haspopup="dialog"
+                            aria-label={`${row.label} color preview, open picker`}
+                          />
+                          {hasCustomColor && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                row.onChange("");
+                                setOpenTeamColorPicker((t) =>
+                                  t === row.id ? null : t,
+                                );
+                              }}
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-500/35 bg-red-950/55 text-red-400 transition-colors hover:border-red-400/50 hover:bg-red-950/80 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
+                              title="Reset to theme default"
+                              aria-label={`Clear ${row.label} custom color`}
+                            >
+                              <X size={20} strokeWidth={2.25} aria-hidden />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -395,8 +446,8 @@ export const SettingsDialog = ({
               className="settings-team-hex-picker"
               color={
                 openTeamColorPicker === "A"
-                  ? parseHexColor(teamColorA) ?? currentTheme.colors.primary
-                  : parseHexColor(teamColorB) ?? currentTheme.colors.secondary
+                  ? (parseHexColor(teamColorA) ?? currentTheme.colors.primary)
+                  : (parseHexColor(teamColorB) ?? currentTheme.colors.secondary)
               }
               onChange={
                 openTeamColorPicker === "A" ? setTeamColorA : setTeamColorB

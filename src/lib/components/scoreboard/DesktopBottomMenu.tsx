@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BarChart2, History, Layers, RefreshCw, Trophy, Undo2, Users } from "lucide-react";
+import { ArrowLeftRight, History, RefreshCw, Trophy, Undo2 } from "lucide-react";
 import { NavButton } from "@/lib/components/NavButton";
 import { type CompletedSet } from "@/lib/types/scoreboard";
 
@@ -54,14 +54,6 @@ export function DesktopBottomMenu({
             Switch Sides
           </span>
         </button>
-        <button className="flex items-center gap-2 px-5 py-2.5 glass-panel rounded-full border border-white/5 hover:bg-white/10 transition-all active:scale-95">
-          <Layers size={14} className="text-primary" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-            {!unlimitedSets && (setsWonA === 3 || setsWonB === 3)
-              ? "Match Over"
-              : `Set ${currentSet}${unlimitedSets ? "" : " of 5"}`}
-          </span>
-        </button>
       </div>
 
       {gameMode && completedSets.length > 0 && (
@@ -83,8 +75,6 @@ export function DesktopBottomMenu({
 
       <nav className="glass-panel px-4 py-2 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-2 pointer-events-auto">
         <NavButton icon={<Trophy size={20} />} label="Match" active />
-        <NavButton icon={<BarChart2 size={20} />} label="Stats" disabled />
-        <NavButton icon={<Users size={20} />} label="Lineup" disabled />
         <NavButton icon={<History size={20} />} label="History" disabled />
         <NavButton icon={<Undo2 size={20} />} label="Undo" onClick={onUndo} disabled={!canUndo} />
       </nav>
