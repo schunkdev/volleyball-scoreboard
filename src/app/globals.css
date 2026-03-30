@@ -14,6 +14,10 @@
   --theme-surface-variant: #2a2d35;
   --theme-on-surface: #ffffff;
   --theme-on-surface-variant: rgba(255, 255, 255, 0.4);
+
+  /* Team background tint (defaults to theme split backgrounds) */
+  --team-primary-bg: var(--theme-bg-secondary);
+  --team-secondary-bg: var(--theme-bg);
 }
 
 @theme {

@@ -278,12 +278,17 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       root.style.setProperty(cssVarName, value);
     });
 
+    // Default split backgrounds (may be overridden by custom team colors below)
+    root.style.setProperty("--team-primary-bg", theme.colors.bgSecondary);
+    root.style.setProperty("--team-secondary-bg", theme.colors.bg);
+
     const hexA = parseHexColor(teamColorA);
     if (hexA) {
       const a = teamAccentFromHex(hexA);
       root.style.setProperty("--theme-primary", a.base);
       root.style.setProperty("--theme-primary-muted", a.muted);
       root.style.setProperty("--theme-primary-contrast", a.contrast);
+      root.style.setProperty("--team-primary-bg", a.surface);
     }
     const hexB = parseHexColor(teamColorB);
     if (hexB) {
@@ -291,6 +296,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       root.style.setProperty("--theme-secondary", b.base);
       root.style.setProperty("--theme-secondary-muted", b.muted);
       root.style.setProperty("--theme-secondary-contrast", b.contrast);
+      root.style.setProperty("--team-secondary-bg", b.surface);
     }
 
     if (!isSubscriberView) {

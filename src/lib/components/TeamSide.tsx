@@ -171,8 +171,11 @@ export const TeamSide = ({
     <div
       className={cn(
         "relative w-1/2 h-full flex flex-col items-center justify-center overflow-visible select-none touch-none transition-colors duration-700",
-        color === "primary" ? "bg-bg-secondary" : "bg-bg",
       )}
+      style={{
+        backgroundColor:
+          color === "primary" ? "var(--team-primary-bg)" : "var(--team-secondary-bg)",
+      }}
     >
       {/* Background Glow */}
       <div

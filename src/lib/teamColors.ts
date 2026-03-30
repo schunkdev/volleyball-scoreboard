@@ -29,18 +29,20 @@ function linearChannel(c: number): number {
 export function teamAccentFromHex(hex: string): {
   base: string;
   muted: string;
+  surface: string;
   contrast: string;
 } {
   const r = Number.parseInt(hex.slice(1, 3), 16);
   const g = Number.parseInt(hex.slice(3, 5), 16);
   const b = Number.parseInt(hex.slice(5, 7), 16);
   const muted = `rgba(${r}, ${g}, ${b}, 0.2)`;
+  const surface = `rgba(${r}, ${g}, ${b}, 0.22)`;
   const L =
     0.2126 * linearChannel(r) +
     0.7152 * linearChannel(g) +
     0.0722 * linearChannel(b);
   const contrast = L > 0.55 ? "#0c0e12" : "#f8fafc";
-  return { base: hex, muted, contrast };
+  return { base: hex, muted, surface, contrast };
 }
 
 const MAX_TEAM_COLOR_LEN = 32;
