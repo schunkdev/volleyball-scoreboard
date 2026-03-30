@@ -17,6 +17,11 @@
 - Side switching to mirror court changes during a match.
 - Undo support with recent state history and full match reset.
 
+### Game mode
+
+- Automatic set wins at 25 points (2-point lead required); score resets on set win.
+- Per-set **timeouts tracking**: under each team name, two dots show timeouts used (tap/click to cycle 0 → 1 → 2 → 0). Timeouts reset when a set ends.
+
 ### Display and interface
 
 - Fullscreen scoreboard mode for better visibility.
@@ -27,10 +32,14 @@
 
 - Settings for game mode and unlimited sets.
 - Theme selection with local persistence across sessions.
+- Custom team colors (optional hex per side) with color picker.
+- Subtle per-team **background tint** that follows the selected theme or custom team colors.
 - Built-in first-run quick guide and manual re-open support.
 
 ### Live sharing
 
+- Host a match and share a **4-character live code** for read-only spectators at `/live/[code]`.
+- Viewer count while hosting.
 - [documentation/live-sharing.md](documentation/live-sharing.md) — Firebase Realtime Database broadcast, server API, scheduled cleanup, and environment variables.
 
 ## Development

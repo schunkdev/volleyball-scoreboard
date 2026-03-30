@@ -174,7 +174,9 @@ export const TeamSide = ({
       )}
       style={{
         backgroundColor:
-          color === "primary" ? "var(--team-primary-bg)" : "var(--team-secondary-bg)",
+          color === "primary"
+            ? "var(--team-primary-bg)"
+            : "var(--team-secondary-bg)",
       }}
     >
       {/* Background Glow */}
@@ -218,7 +220,12 @@ export const TeamSide = ({
         >
           {name}
         </h2>
-        <div className={cn("flex flex-col items-center", compactLayout ? "mt-2" : "mt-4")}>
+        <div
+          className={cn(
+            "flex flex-col items-center",
+            compactLayout ? "mt-2" : "mt-4",
+          )}
+        >
           {unlimitedSets ? (
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
               <InfinityIcon
@@ -284,21 +291,7 @@ export const TeamSide = ({
               </div>
             </div>
           ) : (
-            <div className="flex gap-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "h-3 w-3 rounded-full border transition-all duration-500",
-                    i <= setsWon
-                      ? color === "primary"
-                        ? "border-primary bg-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
-                        : "border-secondary bg-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
-                      : "border-white/10 bg-white/5",
-                  )}
-                />
-              ))}
-            </div>
+            <></>
           )}
         </div>
       </div>
@@ -307,8 +300,12 @@ export const TeamSide = ({
       <div
         className={cn(
           "relative z-10 flex min-h-0 w-full flex-1 flex-col items-center",
-          compactLayout ? "justify-start pt-[6.75rem] pb-4" : "justify-center pt-[clamp(6rem,13vh,9.5rem)] pb-4",
-          readOnly ? "pointer-events-none" : "pointer-events-auto cursor-pointer",
+          compactLayout
+            ? "justify-start pt-[6.75rem] pb-4"
+            : "justify-center pt-[clamp(6rem,13vh,9.5rem)] pb-4",
+          readOnly
+            ? "pointer-events-none"
+            : "pointer-events-auto cursor-pointer",
         )}
         onMouseMove={handleScoreMove}
         onMouseUp={handleScoreEnd}
