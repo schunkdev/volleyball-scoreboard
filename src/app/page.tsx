@@ -59,8 +59,8 @@ export default function VolleyballScoreboard() {
       <ScoreboardHeader
         isCompactMobile={scoreboard.isCompactMobile}
         currentSet={scoreboard.currentSet}
-        setsWonA={scoreboard.setsWonA}
-        setsWonB={scoreboard.setsWonB}
+        setsWonA={scoreboard.leftTeam.setsWon}
+        setsWonB={scoreboard.rightTeam.setsWon}
         unlimitedSets={scoreboard.unlimitedSets}
         supportsFullscreen={scoreboard.supportsFullscreen}
         isFullscreen={scoreboard.isFullscreen}
@@ -159,8 +159,8 @@ export default function VolleyballScoreboard() {
         gameMode={scoreboard.gameMode}
         completedSets={scoreboard.completedSets}
         isSwapped={scoreboard.isSwapped}
-        setsWonA={scoreboard.setsWonA}
-        setsWonB={scoreboard.setsWonB}
+        setsWonA={scoreboard.leftTeam.setsWon}
+        setsWonB={scoreboard.rightTeam.setsWon}
         unlimitedSets={scoreboard.unlimitedSets}
         currentSet={scoreboard.currentSet}
         canUndo={scoreboard.canUndo}
