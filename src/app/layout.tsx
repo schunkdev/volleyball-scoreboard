@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Lexend } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { KeepAwake } from "@/lib/components/KeepAwake";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -49,6 +50,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className="bg-[#0c0e12] text-[#f6f6fc] overflow-hidden"
       >
+        <KeepAwake />
         {children}
         <Analytics />
       </body>
