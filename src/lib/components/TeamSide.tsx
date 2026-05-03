@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { motion } from "motion/react";
 import { Infinity as InfinityIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { courtScoreFontSizeCss } from "@/lib/types/scoreboardLocal";
 
 export const TeamSide = ({
   name,
@@ -22,6 +23,7 @@ export const TeamSide = ({
   unlimitedSets = false,
   compactLayout = false,
   readOnly = false,
+  scoreTextScale = 1,
 }: {
   name: string;
   score: number;
@@ -41,6 +43,8 @@ export const TeamSide = ({
   unlimitedSets?: boolean;
   compactLayout?: boolean;
   readOnly?: boolean;
+  /** Main court score digit size; 1 = default. */
+  scoreTextScale?: number;
 }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [lastDelta, setLastDelta] = useState(0);
@@ -322,13 +326,11 @@ export const TeamSide = ({
           <span
             className={cn(
               "font-headline font-black leading-none tracking-tighter transition-all duration-300",
-              compactLayout
-                ? "text-[clamp(4.25rem,min(21vw,44vh),8.5rem)]"
-                : "text-[clamp(15rem,52vh,36rem)]",
               color === "primary"
                 ? "text-primary score-glow-primary"
                 : "text-secondary score-glow-secondary",
             )}
+            style={{ fontSize: courtScoreFontSizeCss(compactLayout, scoreTextScale) }}
           >
             {score}
           </span>

@@ -10,6 +10,7 @@ import {
   Coffee,
   Github,
   Infinity as InfinityIcon,
+  Monitor,
   Palette,
   User,
   X,
@@ -19,6 +20,11 @@ import { Toggle } from "./Toggle";
 import { themes } from "@/lib/themes";
 import { parseHexColor } from "@/lib/teamColors";
 import { cn } from "@/lib/utils";
+import {
+  SCORE_TEXT_SCALE_MAX,
+  SCORE_TEXT_SCALE_MIN,
+  type SettingsSavePayload,
+} from "@/lib/types/scoreboardLocal";
 
 export const SettingsDialog = ({
   isOpen,
@@ -28,26 +34,15 @@ export const SettingsDialog = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  config: {
-    gameMode: boolean;
-    unlimitedSets: boolean;
-    theme: string;
-    teamColorA: string;
-    teamColorB: string;
-  };
-  onSave: (newConfig: {
-    gameMode: boolean;
-    unlimitedSets: boolean;
-    theme: string;
-    teamColorA: string;
-    teamColorB: string;
-  }) => void;
+  config: SettingsSavePayload;
+  onSave: (payload: SettingsSavePayload) => void;
 }) => {
-  const [gameMode, setGameMode] = useState(config.gameMode);
-  const [unlimitedSets, setUnlimitedSets] = useState(config.unlimitedSets);
-  const [theme, setTheme] = useState(config.theme);
-  const [teamColorA, setTeamColorA] = useState(config.teamColorA);
-  const [teamColorB, setTeamColorB] = useState(config.teamColorB);
+  const [gameMode, setGameMode] = useState(config.game.gameMode);
+  const [unlimitedSets, setUnlimitedSets] = useState(config.game.unlimitedSets);
+  const [theme, setTheme] = useState(config.game.theme);
+  const [teamColorA, setTeamColorA] = useState(config.game.teamColorA);
+  const [teamColorB, setTeamColorB] = useState(config.game.teamColorB);
+  const [scoreTextScale, setScoreTextScale] = useState(config.local.scoreTextScale);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [showTeamColors, setShowTeamColors] = useState(false);
   const [openTeamColorPicker, setOpenTeamColorPicker] = useState<
@@ -138,7 +133,16 @@ export const SettingsDialog = ({
         </h2>
         <div className="mb-5 h-1.5 w-12 rounded-full bg-primary shadow-[0_0_15px_var(--theme-primary)] md:mb-8" />
 
-        <div className="mb-6 w-full space-y-4 md:mb-10">
+        <div className="mb-3 w-full md:mb-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface">
+            Match &amp; appearance
+          </p>
+          <p className="mt-1 text-[9px] leading-relaxed text-on-surface-variant">
+            Applies to the scoreboard and is synced to live viewers when you broadcast.
+          </p>
+        </div>
+
+        <div className="mb-8 w-full space-y-4 md:mb-10">
           <Toggle
             active={gameMode}
             onToggle={() => setGameMode(!gameMode)}
@@ -353,6 +357,50 @@ export const SettingsDialog = ({
           </div>
         </div>
 
+        <div className="mb-3 w-full md:mb-4">
+          <div className="flex items-center gap-2">
+            <Monitor
+              size={14}
+              className="shrink-0 text-primary"
+              strokeWidth={2}
+              aria-hidden
+            />
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface">
+              This device only
+            </p>
+          </div>
+          <p className="mt-1 text-[9px] leading-relaxed text-on-surface-variant">
+            Not sent when you go live. Stored in this browser only.
+          </p>
+        </div>
+
+        <div className="mb-8 w-full rounded-2xl border border-white/5 bg-white/5 p-4 md:mb-10">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface">
+              Score size
+            </span>
+            <span className="tabular-nums text-[10px] font-bold uppercase tracking-widest text-primary">
+              {Math.round(scoreTextScale * 100)}%
+            </span>
+          </div>
+          <input
+            type="range"
+            min={SCORE_TEXT_SCALE_MIN}
+            max={SCORE_TEXT_SCALE_MAX}
+            step={0.05}
+            value={scoreTextScale}
+            onChange={(e) => setScoreTextScale(Number(e.target.value))}
+            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-primary [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-[0_0_12px_var(--theme-primary-muted)]"
+            aria-valuemin={SCORE_TEXT_SCALE_MIN}
+            aria-valuemax={SCORE_TEXT_SCALE_MAX}
+            aria-valuenow={scoreTextScale}
+            aria-label="Main score digit size"
+          />
+          <p className="mt-2 text-[9px] leading-relaxed text-on-surface-variant">
+            Affects only the large point scores on the court, not names or menus.
+          </p>
+        </div>
+
         <div className="mb-5 flex w-full items-center justify-between gap-3 md:mb-6">
           <button
             type="button"
@@ -407,11 +455,14 @@ export const SettingsDialog = ({
             type="button"
             onClick={() => {
               onSave({
-                gameMode,
-                unlimitedSets,
-                theme,
-                teamColorA: parseHexColor(teamColorA) ?? "",
-                teamColorB: parseHexColor(teamColorB) ?? "",
+                game: {
+                  gameMode,
+                  unlimitedSets,
+                  theme,
+                  teamColorA: parseHexColor(teamColorA) ?? "",
+                  teamColorB: parseHexColor(teamColorB) ?? "",
+                },
+                local: { scoreTextScale },
               });
               onClose();
             }}

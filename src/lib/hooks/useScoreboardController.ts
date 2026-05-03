@@ -28,6 +28,11 @@ import {
 } from "@/lib/firebase/liveSessionService";
 import { isFirebaseClientConfigured } from "@/lib/firebase/client";
 import { parseHexColor, teamAccentFromHex } from "@/lib/teamColors";
+import {
+  type LocalScoreboardSettings,
+  DEFAULT_LOCAL_SCOREBOARD_SETTINGS,
+  parsePersistedLocalSettings,
+} from "@/lib/types/scoreboardLocal";
 
 const LIVE_PUBLISH_MS = 250;
 const STORAGE_CODE = "vb-live-code";
@@ -52,6 +57,8 @@ type PersistedSnapshotV1 = {
   teamColorB: string;
   timeoutsUsedA?: number;
   timeoutsUsedB?: number;
+  /** Device-only; never sent to live viewers. */
+  localSettings: LocalScoreboardSettings;
 };
 
 function isCompletedSet(x: unknown): x is CompletedSet {
@@ -132,6 +139,7 @@ function parsePersistedSnapshot(raw: string | null): PersistedSnapshotV1 | null 
       teamColorB,
       timeoutsUsedA: clampTo(o.timeoutsUsedA, 2),
       timeoutsUsedB: clampTo(o.timeoutsUsedB, 2),
+      localSettings: parsePersistedLocalSettings(o.localSettings),
     };
   } catch {
     return null;
@@ -172,6 +180,12 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
   const [themeId, setThemeId] = useState("stadium-dark");
   const [teamColorA, setTeamColorA] = useState("");
   const [teamColorB, setTeamColorB] = useState("");
+  const [localSettings, setLocalSettingsState] = useState<LocalScoreboardSettings>(
+    () => ({ ...DEFAULT_LOCAL_SCOREBOARD_SETTINGS }),
+  );
+  const setLocalSettings = useCallback((next: LocalScoreboardSettings) => {
+    setLocalSettingsState(parsePersistedLocalSettings(next));
+  }, []);
 
   const [liveCode, setLiveCode] = useState<string | null>(null);
   const [liveHostSessionId, setLiveHostSessionId] = useState<string | null>(null);
@@ -216,6 +230,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       setThemeId(full.themeId);
       setTeamColorA(full.teamColorA);
       setTeamColorB(full.teamColorB);
+      setLocalSettings({ ...full.localSettings });
     } else {
       const savedTheme = localStorage.getItem("vb-scoreboard-theme");
       if (savedTheme) setThemeId(savedTheme);
@@ -243,6 +258,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
       themeId,
       teamColorA,
       teamColorB,
+      localSettings: { ...localSettings },
     };
     try {
       localStorage.setItem(STORAGE_SCOREBOARD, JSON.stringify(snapshot));
@@ -268,6 +284,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     themeId,
     teamColorA,
     teamColorB,
+    localSettings,
   ]);
 
   useEffect(() => {
@@ -838,6 +855,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     themeId,
     teamColorA,
     teamColorB,
+    localSettings,
     supportsFullscreen,
     currentSet,
     safeAreaStyle,
@@ -871,6 +889,7 @@ export function useScoreboardController(options?: UseScoreboardControllerOptions
     setThemeId,
     setTeamColorA,
     setTeamColorB,
+    setLocalSettings,
     resetMatch,
     handleUndo,
     updateScore,

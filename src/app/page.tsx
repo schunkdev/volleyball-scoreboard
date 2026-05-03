@@ -121,6 +121,7 @@ export default function VolleyballScoreboard() {
           onSetWinIncrement={() => scoreboard.handleSetWinIncrement(scoreboard.leftTeam.id)}
           unlimitedSets={scoreboard.unlimitedSets}
           compactLayout={scoreboard.isCompactMobile}
+          scoreTextScale={scoreboard.localSettings.scoreTextScale}
         />
         <TeamSide
           name={scoreboard.rightTeam.name}
@@ -147,6 +148,7 @@ export default function VolleyballScoreboard() {
           onSetWinIncrement={() => scoreboard.handleSetWinIncrement(scoreboard.rightTeam.id)}
           unlimitedSets={scoreboard.unlimitedSets}
           compactLayout={scoreboard.isCompactMobile}
+          scoreTextScale={scoreboard.localSettings.scoreTextScale}
         />
       </div>
 
@@ -278,18 +280,22 @@ export default function VolleyballScoreboard() {
             isOpen={true}
             onClose={() => scoreboard.setSettingsDialogOpen(false)}
             config={{
-              gameMode: scoreboard.gameMode,
-              unlimitedSets: scoreboard.unlimitedSets,
-              theme: scoreboard.themeId,
-              teamColorA: scoreboard.teamColorA,
-              teamColorB: scoreboard.teamColorB,
+              game: {
+                gameMode: scoreboard.gameMode,
+                unlimitedSets: scoreboard.unlimitedSets,
+                theme: scoreboard.themeId,
+                teamColorA: scoreboard.teamColorA,
+                teamColorB: scoreboard.teamColorB,
+              },
+              local: scoreboard.localSettings,
             }}
-            onSave={(cfg) => {
-              scoreboard.setGameMode(cfg.gameMode);
-              scoreboard.setUnlimitedSets(cfg.unlimitedSets);
-              scoreboard.setThemeId(cfg.theme);
-              scoreboard.setTeamColorA(cfg.teamColorA);
-              scoreboard.setTeamColorB(cfg.teamColorB);
+            onSave={({ game, local }) => {
+              scoreboard.setGameMode(game.gameMode);
+              scoreboard.setUnlimitedSets(game.unlimitedSets);
+              scoreboard.setThemeId(game.theme);
+              scoreboard.setTeamColorA(game.teamColorA);
+              scoreboard.setTeamColorB(game.teamColorB);
+              scoreboard.setLocalSettings(local);
             }}
           />
         )}
