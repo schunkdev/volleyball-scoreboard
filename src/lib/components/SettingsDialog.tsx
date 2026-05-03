@@ -24,6 +24,7 @@ import {
   SCORE_TEXT_SCALE_MAX,
   SCORE_TEXT_SCALE_MIN,
   type SettingsSavePayload,
+  type TeamHeaderDisplayMode,
 } from "@/lib/types/scoreboardLocal";
 
 export const SettingsDialog = ({
@@ -43,6 +44,9 @@ export const SettingsDialog = ({
   const [teamColorA, setTeamColorA] = useState(config.game.teamColorA);
   const [teamColorB, setTeamColorB] = useState(config.game.teamColorB);
   const [scoreTextScale, setScoreTextScale] = useState(config.local.scoreTextScale);
+  const [teamHeaderDisplay, setTeamHeaderDisplay] = useState<TeamHeaderDisplayMode>(
+    config.local.teamHeaderDisplay,
+  );
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [showTeamColors, setShowTeamColors] = useState(false);
   const [openTeamColorPicker, setOpenTeamColorPicker] = useState<
@@ -125,9 +129,11 @@ export const SettingsDialog = ({
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="flex max-h-[calc(100dvh-max(env(safe-area-inset-top),0.75rem)-max(env(safe-area-inset-bottom),0.75rem)-1.5rem)] w-full max-w-[520px] cursor-default flex-col items-center overflow-y-auto rounded-3xl border border-white/10 bg-surface p-5 shadow-[0_30px_60px_rgba(0,0,0,0.5)] md:rounded-[40px] md:p-10"
+        className="flex max-h-[calc(100dvh-max(env(safe-area-inset-top),0.75rem)-max(env(safe-area-inset-bottom),0.75rem)-1.5rem)] w-full max-w-[520px] min-h-0 cursor-default flex-col overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-[0_30px_60px_rgba(0,0,0,0.5)] md:rounded-[40px]"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-5 md:px-10 md:pt-10">
         <h2 className="mb-2 font-headline text-3xl font-black uppercase italic tracking-tighter text-on-surface md:text-5xl">
           Settings
         </h2>
@@ -374,7 +380,32 @@ export const SettingsDialog = ({
           </p>
         </div>
 
-        <div className="mb-8 w-full rounded-2xl border border-white/5 bg-white/5 p-4 md:mb-10">
+        <div className="mb-4 w-full rounded-2xl border border-white/5 bg-white/5 p-4 md:mb-5">
+          <label
+            htmlFor="team-header-display"
+            className="mb-2 block text-xs font-bold uppercase tracking-widest text-on-surface"
+          >
+            Team header
+          </label>
+          <select
+            id="team-header-display"
+            value={teamHeaderDisplay}
+            onChange={(e) =>
+              setTeamHeaderDisplay(e.target.value as TeamHeaderDisplayMode)
+            }
+            className="w-full cursor-pointer rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm font-bold text-on-surface outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="show_all">Show all</option>
+            <option value="hide_teamname">Hide team name</option>
+            <option value="hide_all">Hide all</option>
+          </select>
+          <p className="mt-2 text-[9px] leading-relaxed text-on-surface-variant">
+            Hide team name keeps set counts and timeouts under each side. Hide all also
+            removes those and the center set summary.
+          </p>
+        </div>
+
+        <div className="mb-8 w-full rounded-2xl border border-white/5 bg-white/5 p-4 md:mb-8">
           <div className="mb-3 flex items-center justify-between gap-3">
             <span className="text-xs font-bold uppercase tracking-widest text-on-surface">
               Score size
@@ -401,7 +432,7 @@ export const SettingsDialog = ({
           </p>
         </div>
 
-        <div className="mb-5 flex w-full items-center justify-between gap-3 md:mb-6">
+        <div className="flex w-full items-center justify-between gap-3 pb-4 md:pb-5">
           <button
             type="button"
             onClick={handleShowGuideAgain}
@@ -442,34 +473,38 @@ export const SettingsDialog = ({
             </a>
           </div>
         </div>
+          </div>
 
-        <div className="flex w-full gap-3 md:gap-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 cursor-pointer rounded-2xl bg-white/5 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-on-surface transition-all hover:bg-white/10 active:scale-95 md:py-5"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onSave({
-                game: {
-                  gameMode,
-                  unlimitedSets,
-                  theme,
-                  teamColorA: parseHexColor(teamColorA) ?? "",
-                  teamColorB: parseHexColor(teamColorB) ?? "",
-                },
-                local: { scoreTextScale },
-              });
-              onClose();
-            }}
-            className="flex-1 cursor-pointer rounded-2xl bg-primary py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-primary-contrast shadow-[0_0_30px_var(--theme-primary-muted)] transition-all active:scale-95 md:py-5"
-          >
-            Save Config
-          </button>
+          <div className="shrink-0 border-t border-white/10 bg-surface px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 md:px-10 md:pb-[max(2.5rem,env(safe-area-inset-bottom))] md:pt-5">
+            <div className="flex w-full gap-3 md:gap-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 cursor-pointer rounded-2xl bg-white/5 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-on-surface transition-all hover:bg-white/10 active:scale-95 md:py-5"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onSave({
+                    game: {
+                      gameMode,
+                      unlimitedSets,
+                      theme,
+                      teamColorA: parseHexColor(teamColorA) ?? "",
+                      teamColorB: parseHexColor(teamColorB) ?? "",
+                    },
+                    local: { scoreTextScale, teamHeaderDisplay },
+                  });
+                  onClose();
+                }}
+                className="flex-1 cursor-pointer rounded-2xl bg-primary py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-primary-contrast shadow-[0_0_30px_var(--theme-primary-muted)] transition-all active:scale-95 md:py-5"
+              >
+                Save Config
+              </button>
+            </div>
+          </div>
         </div>
       </motion.div>
       {typeof document !== "undefined" &&

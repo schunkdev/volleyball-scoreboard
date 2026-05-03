@@ -4,7 +4,10 @@ import React, { useState, useRef } from "react";
 import { motion } from "motion/react";
 import { Infinity as InfinityIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { courtScoreFontSizeCss } from "@/lib/types/scoreboardLocal";
+import {
+  courtScoreFontSizeCss,
+  type TeamHeaderDisplayMode,
+} from "@/lib/types/scoreboardLocal";
 
 export const TeamSide = ({
   name,
@@ -24,6 +27,7 @@ export const TeamSide = ({
   compactLayout = false,
   readOnly = false,
   scoreTextScale = 1,
+  teamHeaderDisplay = "show_all",
 }: {
   name: string;
   score: number;
@@ -45,7 +49,12 @@ export const TeamSide = ({
   readOnly?: boolean;
   /** Main court score digit size; 1 = default. */
   scoreTextScale?: number;
+  /** Device-only: which parts of the top team strip to show. */
+  teamHeaderDisplay?: TeamHeaderDisplayMode;
 }) => {
+  const showTeamNames = teamHeaderDisplay === "show_all";
+  const showUnderNameExtras = teamHeaderDisplay !== "hide_all";
+  const showNameRegion = showTeamNames || showUnderNameExtras;
   const [isHolding, setIsHolding] = useState(false);
   const [lastDelta, setLastDelta] = useState(0);
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -192,121 +201,143 @@ export const TeamSide = ({
       />
 
       {/* Team Info Area - Separate Hitbox for Name Long Press */}
-      <div
-        className={cn(
-          "absolute flex flex-col items-center z-30 group/name",
-          readOnly
-            ? "pointer-events-none cursor-default"
-            : "pointer-events-auto cursor-pointer",
-          compactLayout ? "top-3" : "top-20",
-        )}
-        onMouseDown={handleNameStart}
-        onMouseUp={handleNameEnd}
-        onMouseLeave={handleNameEnd}
-        onTouchStart={handleNameStart}
-        onTouchEnd={handleNameEnd}
-        onClick={handleNameClick}
-      >
-        <span
-          className={cn(
-            "font-body tracking-[0.3em] uppercase font-bold",
-            compactLayout ? "text-[8px] mb-1.5" : "text-[10px] mb-2",
-            color === "primary" ? "text-primary" : "text-secondary",
-          )}
-        >
-          {label}
-        </span>
-        <h2
-          className={cn(
-            "font-headline font-black tracking-tight uppercase transition-transform group-active/name:scale-95 text-on-surface",
-            compactLayout ? "text-xl max-w-[42vw] truncate" : "text-4xl",
-          )}
-        >
-          {name}
-        </h2>
+      {showNameRegion && (
         <div
           className={cn(
-            "flex flex-col items-center",
-            compactLayout ? "mt-2" : "mt-4",
+            "absolute flex flex-col items-center z-30 group/name",
+            readOnly
+              ? "pointer-events-none cursor-default"
+              : "pointer-events-auto cursor-pointer",
+            compactLayout ? "top-3" : "top-20",
+            !showTeamNames &&
+              showUnderNameExtras &&
+              !unlimitedSets &&
+              !gameMode &&
+              "min-h-12 justify-center",
           )}
+          onMouseDown={handleNameStart}
+          onMouseUp={handleNameEnd}
+          onMouseLeave={handleNameEnd}
+          onTouchStart={handleNameStart}
+          onTouchEnd={handleNameEnd}
+          onClick={handleNameClick}
         >
-          {unlimitedSets ? (
-            <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-              <InfinityIcon
-                size={12}
-                className={
-                  color === "primary" ? "text-primary" : "text-secondary"
-                }
-              />
-              <span className="text-[10px] font-bold text-on-surface">
-                {setsWon}
-              </span>
-            </div>
-          ) : gameMode ? (
-            <div
-              className={cn(
-                "flex flex-col items-center gap-1.5",
-                !readOnly && onTimeoutsCycle && "cursor-pointer",
-              )}
-              role={readOnly || !onTimeoutsCycle ? undefined : "button"}
-              tabIndex={readOnly || !onTimeoutsCycle ? undefined : 0}
-              aria-label={
-                readOnly || !onTimeoutsCycle
-                  ? undefined
-                  : `Timeouts used: ${timeoutsUsed} of 2. Tap to cycle.`
-              }
-              onKeyDown={(e) => {
-                if (readOnly || !onTimeoutsCycle) return;
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onTimeoutsCycle();
-                }
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!readOnly && onTimeoutsCycle) onTimeoutsCycle();
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-            >
+          {showTeamNames && (
+            <>
               <span
                 className={cn(
-                  "font-bold uppercase tracking-widest text-on-surface-variant",
-                  compactLayout ? "text-[7px]" : "text-[8px]",
+                  "font-body tracking-[0.3em] uppercase font-bold",
+                  compactLayout ? "text-[8px] mb-1.5" : "text-[10px] mb-2",
+                  color === "primary" ? "text-primary" : "text-secondary",
                 )}
               >
-                Timeouts
+                {label}
               </span>
-              <div className="flex gap-3">
-                {[1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "h-3 w-3 rounded-full border transition-all duration-500",
-                      i <= timeoutsUsed
-                        ? color === "primary"
-                          ? "border-primary bg-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
-                          : "border-secondary bg-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
-                        : "border-white/10 bg-white/5",
-                    )}
+              <h2
+                className={cn(
+                  "font-headline font-black tracking-tight uppercase transition-transform group-active/name:scale-95 text-on-surface",
+                  compactLayout ? "text-xl max-w-[42vw] truncate" : "text-4xl",
+                )}
+              >
+                {name}
+              </h2>
+            </>
+          )}
+          {showUnderNameExtras && (
+            <div
+              className={cn(
+                "flex flex-col items-center",
+                showTeamNames && (compactLayout ? "mt-2" : "mt-4"),
+              )}
+            >
+              {unlimitedSets ? (
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                  <InfinityIcon
+                    size={12}
+                    className={
+                      color === "primary" ? "text-primary" : "text-secondary"
+                    }
                   />
-                ))}
-              </div>
+                  <span className="text-[10px] font-bold text-on-surface">
+                    {setsWon}
+                  </span>
+                </div>
+              ) : gameMode ? (
+                <div
+                  className={cn(
+                    "flex flex-col items-center gap-1.5",
+                    !readOnly && onTimeoutsCycle && "cursor-pointer",
+                  )}
+                  role={readOnly || !onTimeoutsCycle ? undefined : "button"}
+                  tabIndex={readOnly || !onTimeoutsCycle ? undefined : 0}
+                  aria-label={
+                    readOnly || !onTimeoutsCycle
+                      ? undefined
+                      : `Timeouts used: ${timeoutsUsed} of 2. Tap to cycle.`
+                  }
+                  onKeyDown={(e) => {
+                    if (readOnly || !onTimeoutsCycle) return;
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onTimeoutsCycle();
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!readOnly && onTimeoutsCycle) onTimeoutsCycle();
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
+                  <span
+                    className={cn(
+                      "font-bold uppercase tracking-widest text-on-surface-variant",
+                      compactLayout ? "text-[7px]" : "text-[8px]",
+                    )}
+                  >
+                    Timeouts
+                  </span>
+                  <div className="flex gap-3">
+                    {[1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "h-3 w-3 rounded-full border transition-all duration-500",
+                          i <= timeoutsUsed
+                            ? color === "primary"
+                              ? "border-primary bg-primary shadow-[0_0_15px_var(--theme-primary-muted)]"
+                              : "border-secondary bg-secondary shadow-[0_0_15px_var(--theme-secondary-muted)]"
+                            : "border-white/10 bg-white/5",
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
-          ) : (
-            <></>
           )}
         </div>
-      </div>
+      )}
 
       {/* Score area: whole lower half is the hit target — tap +1, swipe ±1, hold rapid ±5 */}
       <div
         className={cn(
-          "relative z-10 flex min-h-0 w-full flex-1 flex-col items-center",
-          compactLayout
-            ? "justify-start pt-[6.75rem] pb-4"
-            : "justify-center pt-[clamp(6rem,13vh,9.5rem)] pb-4",
+          "relative z-10 flex min-h-0 w-full flex-1 flex-col items-center pb-4",
+          compactLayout &&
+            (teamHeaderDisplay === "hide_all"
+              ? "justify-start pt-16"
+              : teamHeaderDisplay === "hide_teamname"
+                ? "justify-start pt-24"
+                : "justify-start pt-[6.75rem]"),
+          !compactLayout &&
+            (teamHeaderDisplay === "hide_all"
+              ? "justify-center pt-8"
+              : teamHeaderDisplay === "hide_teamname"
+                ? "justify-center pt-[clamp(4rem,10vh,7rem)]"
+                : "justify-center pt-[clamp(6rem,13vh,9.5rem)]"),
           readOnly
             ? "pointer-events-none"
             : "pointer-events-auto cursor-pointer",

@@ -69,6 +69,7 @@ export default function LiveSubscriberPage() {
         firebaseOnline={scoreboard.firebaseOnline}
         hideSettings
         enableHostLiveActions={false}
+        teamHeaderDisplay={scoreboard.localSettings.teamHeaderDisplay}
       />
 
       {!scoreboard.subscriberHydrated && status === "loading" && (
@@ -131,6 +132,7 @@ export default function LiveSubscriberPage() {
           onSetWinIncrement={() => {}}
           unlimitedSets={scoreboard.unlimitedSets}
           compactLayout={scoreboard.isCompactMobile}
+          teamHeaderDisplay={scoreboard.localSettings.teamHeaderDisplay}
         />
         <TeamSide
           name={scoreboard.rightTeam.name}
@@ -152,6 +154,7 @@ export default function LiveSubscriberPage() {
           onSetWinIncrement={() => {}}
           unlimitedSets={scoreboard.unlimitedSets}
           compactLayout={scoreboard.isCompactMobile}
+          teamHeaderDisplay={scoreboard.localSettings.teamHeaderDisplay}
         />
       </div>
 

@@ -7,6 +7,7 @@ import { LogOut, Maximize2, Minimize2, Radio, Settings, Users } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { normalizeLiveCode } from "@/lib/live/liveScoreboardState";
 import { SetScoreCenterStack } from "@/lib/components/scoreboard/SetScoreCenterStack";
+import type { TeamHeaderDisplayMode } from "@/lib/types/scoreboardLocal";
 
 type Props = {
   isCompactMobile: boolean;
@@ -30,6 +31,8 @@ type Props = {
   enableHostLiveActions?: boolean;
   /** Main host: radio opens Live dialog instead of header dropdown. */
   hostLiveInSettingsOnly?: boolean;
+  /** Device-only: when hide_all, center set summary is not shown. */
+  teamHeaderDisplay?: TeamHeaderDisplayMode;
 };
 
 export function ScoreboardHeader({
@@ -51,6 +54,7 @@ export function ScoreboardHeader({
   firebaseOnline = true,
   enableHostLiveActions = true,
   hostLiveInSettingsOnly = false,
+  teamHeaderDisplay = "show_all",
 }: Props) {
   const router = useRouter();
   const [liveMenuOpen, setLiveMenuOpen] = useState(false);
@@ -64,6 +68,7 @@ export function ScoreboardHeader({
     showLiveMenuButton && hostLiveInSettingsOnly && Boolean(onOpenLiveSettings);
   const showHeaderLiveDropdown = showLiveMenuButton && !hostLiveInSettingsOnly;
   const isHostLive = liveMode === "host";
+  const hideCenterSetScores = teamHeaderDisplay === "hide_all";
 
   useEffect(() => {
     if (!liveMenuOpen) return;
@@ -95,13 +100,15 @@ export function ScoreboardHeader({
 
       {!isCompactMobile && (
         <div className="absolute left-1/2 top-14 -translate-x-1/2 flex flex-col items-center pointer-events-auto gap-2 sm:top-16">
-          <SetScoreCenterStack
-            currentSet={currentSet}
-            setsWonA={setsWonA}
-            setsWonB={setsWonB}
-            unlimitedSets={unlimitedSets}
-            size="header"
-          />
+          {!hideCenterSetScores && (
+            <SetScoreCenterStack
+              currentSet={currentSet}
+              setsWonA={setsWonA}
+              setsWonB={setsWonB}
+              unlimitedSets={unlimitedSets}
+              size="header"
+            />
+          )}
           {showLiveChip && (
             <div
               className={cn(
@@ -137,7 +144,7 @@ export function ScoreboardHeader({
         </div>
       )}
 
-      {isCompactMobile && (
+      {isCompactMobile && !hideCenterSetScores && (
         <div
           className={cn(
             "pointer-events-none absolute left-1/2 z-[8] flex -translate-x-1/2 flex-col items-center",
@@ -155,7 +162,12 @@ export function ScoreboardHeader({
       )}
 
       {isCompactMobile && showLiveChip && (
-        <div className="pointer-events-none absolute left-1/2 top-2.5 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-surface-container/50 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-on-surface backdrop-blur-md">
+        <div
+          className={cn(
+            "pointer-events-none absolute left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-surface-container/50 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-on-surface backdrop-blur-md",
+            hideCenterSetScores ? "top-2" : "top-2.5",
+          )}
+        >
           <Radio
             size={10}
             className={cn(

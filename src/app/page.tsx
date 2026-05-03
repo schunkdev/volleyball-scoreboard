@@ -73,6 +73,7 @@ export default function VolleyballScoreboard() {
         firebaseOnline={scoreboard.firebaseOnline}
         enableHostLiveActions
         hostLiveInSettingsOnly
+        teamHeaderDisplay={scoreboard.localSettings.teamHeaderDisplay}
       />
 
       {liveStartError && (
@@ -122,6 +123,7 @@ export default function VolleyballScoreboard() {
           unlimitedSets={scoreboard.unlimitedSets}
           compactLayout={scoreboard.isCompactMobile}
           scoreTextScale={scoreboard.localSettings.scoreTextScale}
+          teamHeaderDisplay={scoreboard.localSettings.teamHeaderDisplay}
         />
         <TeamSide
           name={scoreboard.rightTeam.name}
@@ -149,6 +151,7 @@ export default function VolleyballScoreboard() {
           unlimitedSets={scoreboard.unlimitedSets}
           compactLayout={scoreboard.isCompactMobile}
           scoreTextScale={scoreboard.localSettings.scoreTextScale}
+          teamHeaderDisplay={scoreboard.localSettings.teamHeaderDisplay}
         />
       </div>
 

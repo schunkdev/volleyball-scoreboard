@@ -9,13 +9,31 @@
 export const SCORE_TEXT_SCALE_MIN = 0.65;
 export const SCORE_TEXT_SCALE_MAX = 1.4;
 
+export type TeamHeaderDisplayMode = "show_all" | "hide_teamname" | "hide_all";
+
+const TEAM_HEADER_DISPLAY_MODES: TeamHeaderDisplayMode[] = [
+  "show_all",
+  "hide_teamname",
+  "hide_all",
+];
+
+export function parseTeamHeaderDisplayMode(raw: unknown): TeamHeaderDisplayMode {
+  if (typeof raw !== "string") return "show_all";
+  return TEAM_HEADER_DISPLAY_MODES.includes(raw as TeamHeaderDisplayMode)
+    ? (raw as TeamHeaderDisplayMode)
+    : "show_all";
+}
+
 export type LocalScoreboardSettings = {
   /** Multiplier for main court score digits; 1 = default layout. */
   scoreTextScale: number;
+  /** Device-only: names, under-name sets/timeouts, and center set stack visibility. */
+  teamHeaderDisplay: TeamHeaderDisplayMode;
 };
 
 export const DEFAULT_LOCAL_SCOREBOARD_SETTINGS: LocalScoreboardSettings = {
   scoreTextScale: 1,
+  teamHeaderDisplay: "show_all",
 };
 
 export function parsePersistedLocalSettings(raw: unknown): LocalScoreboardSettings {
@@ -31,7 +49,8 @@ export function parsePersistedLocalSettings(raw: unknown): LocalScoreboardSettin
       Math.max(SCORE_TEXT_SCALE_MIN, o.scoreTextScale),
     );
   }
-  return { scoreTextScale };
+  const teamHeaderDisplay = parseTeamHeaderDisplayMode(o.teamHeaderDisplay);
+  return { scoreTextScale, teamHeaderDisplay };
 }
 
 /** Match & appearance block saved from settings (synced when live). */
